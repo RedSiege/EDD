@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.DirectoryServices;
-using System.Linq;
 using System.Management;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace EDD
 {
@@ -32,7 +29,7 @@ namespace EDD
                     foreach (ManagementObject process in queryCollection)
                     {
                         var wmiObject = (ManagementObject) process;
-                        string name = (string)wmiObject["Name"];
+                        string name = (string) wmiObject["Name"];
                         if (String.Equals(name, procName, StringComparison.OrdinalIgnoreCase))
                         {
                             if (!systemsRunningTargetedProc.Contains(computerName))
@@ -45,17 +42,17 @@ namespace EDD
                 }
                 catch (System.Runtime.InteropServices.COMException e)
                 {
-                    Console.WriteLine(e);
+                    //Console.WriteLine(e);
                 }
 
                 catch (System.UnauthorizedAccessException e2)
                 {
-                    Console.WriteLine(e2);
+                    //Console.WriteLine(e2);
                 }
 
                 catch (System.Management.ManagementException e3)
                 {
-                    Console.WriteLine(e3);
+                    //Console.WriteLine(e3);
                 }
             }
 
@@ -65,7 +62,7 @@ namespace EDD
                 Console.WriteLine("============================================");
                 foreach (string runningSystem in systemsRunningTargetedProc)
                 {
-                    Console.WriteLine(runningSystem);
+                    Console.WriteLine("[+] " + runningSystem);
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.DirectoryServices;
 
 
@@ -14,7 +15,15 @@ namespace EDD
             SearchResultCollection computerprimary_results = CustomSearchLDAP(computerprimary_Filter, comppri_params);
             foreach (SearchResult sr in computerprimary_results)
             {
-                compmodified_pgrpid.Add(sr.Properties["dnsHostName"][0].ToString());
+                try
+                {
+                    compmodified_pgrpid.Add(sr.Properties["dnsHostName"][0].ToString());
+                }
+                catch (Exception e)
+                {
+                    // threw an odd error
+                }
+                
             }
             return compmodified_pgrpid;
         }
@@ -32,6 +41,8 @@ namespace EDD
             {
                 DirectorySearcher ds = new DirectorySearcher(newentry);
                 ds.Filter = ldap_query;
+                ds.SearchScope = SearchScope.Subtree;
+                ds.PageSize = 500;
                 SearchResultCollection results = ds.FindAll();
                 return results;
             }
@@ -39,6 +50,8 @@ namespace EDD
             {
                 DirectorySearcher ds = new DirectorySearcher(newentry);
                 ds.Filter = ldap_query;
+                ds.SearchScope = SearchScope.Subtree;
+                ds.PageSize = 500;
                 foreach (string param in optional_params)
                 {
                     ds.PropertiesToLoad.Add(param);
