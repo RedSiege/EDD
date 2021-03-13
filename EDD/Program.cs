@@ -14,8 +14,8 @@ namespace EDD
             try
             {
                 // Get a list of domain computers
-                //LDAP domainQuery = new LDAP();
-                //List<string> domainComputers = domainQuery.CaptureComputers();
+                LDAP domainQuery = new LDAP();
+                List<string> domainComputers = domainQuery.CaptureComputers();
 
                 // Searches across domain systems for a specific process running
                 //WMI processSearcher = new WMI();
@@ -23,10 +23,10 @@ namespace EDD
 
                 // Searches for domain shares that current account can access
                 Amass shepherd = new Amass();
-                //List<string> domainShares = shepherd.GetShares(domainComputers);
+                shepherd.GetShares(domainComputers);
 
                 // Get list of local group members
-                List<string> groupAccounts = shepherd.GetGroupMembers("192.168.202.69", "Administrators");
+                //shepherd.GetGroupMembers("192.168.202.67", "Administrators");
             }
             catch (Exception e)
             {

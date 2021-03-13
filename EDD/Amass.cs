@@ -11,14 +11,38 @@ namespace EDD
 {
     class Amass
     {
-        public List<string> GetGroupMembers(string targetedComputer, string GroupName)
+        public void GetGroupMembers(string targetedComputer, string GroupName)
         {
             List<string> groupMembers = new List<string>();
-            
-            return groupMembers;
+            int read;
+            int total;
+            int resume;
+            IntPtr pbuf;
+            int ret = NetLocalGroupGetMembers(targetedComputer, GroupName, 3, out pbuf, -1, out read, out total, out resume);
+
+            if (ret != 0)
+            {
+                return;
+            }
+            List<string> members = new List<string>();
+            if (read > 0)
+            {
+                var m = new LOCALGROUP_MEMBERS_INFO_3();
+                IntPtr pItem = pbuf;
+                Console.WriteLine("\nTargeting the system - " + targetedComputer);
+                Console.WriteLine("Members of the " + GroupName + " group include:");
+                Console.WriteLine("================================================");
+                for (int i = 0; i < read; ++i)
+                {
+                    Marshal.PtrToStructure(pItem, m);
+                    pItem = new IntPtr(pItem.ToInt64() + Marshal.SizeOf(typeof(LOCALGROUP_MEMBERS_INFO_3)));
+                    Console.WriteLine(m.domainandname);
+                }
+            }
+            NetApiBufferFree(pbuf);
         }
 
-        public List<string> GetShares(List<string> targetedComputers)
+        public void GetShares(List<string> targetedComputers)
         {
             List<string> filePathstoReview = new List<string>();
             foreach (string singleComp in targetedComputers)
@@ -43,17 +67,33 @@ namespace EDD
                     }
                     for (int i = 0; i < alShare.Count; i++)
                     {
-                        filePathstoReview.Add("\\\\" + singleComp + "\\" + alShare[i].ToString() + "\\");
+                        filePathstoReview.Add("\\\\" + singleComp + "\\" + alShare[i].ToString());
                     }
                 }
             }
-            return filePathstoReview;
+
+            if (filePathstoReview.Count > 0)
+            {
+                Console.WriteLine("\nAccessible Network Shares");
+                Console.WriteLine("============================");
+                foreach (string sharePath in filePathstoReview)
+                {
+                    Console.WriteLine(sharePath);
+                }
+            }
         }
 
         [DllImport("Netapi32.dll", EntryPoint = "NetShareEnum")]
         protected static extern int NetShareEnum([MarshalAs(UnmanagedType.LPWStr)] string servername, [MarshalAs(UnmanagedType.U4)] uint level, out IntPtr bufptr,
             [MarshalAs(UnmanagedType.U4)] int prefmaxlen, [MarshalAs(UnmanagedType.U4)] out uint entriesread,
             [MarshalAs(UnmanagedType.U4)] out uint totalentries, [MarshalAs(UnmanagedType.U4)] out uint resume_handle);
+
+        [DllImport("Netapi32.dll", EntryPoint = "NetLocalGroupGetMembers", CharSet = CharSet.Unicode)]
+        internal extern static int NetLocalGroupGetMembers(string servername, string groupname, int level, out IntPtr bufptr, int prefmaxlen,
+            out int entriesread, out int totalentries, out int resumehandle);
+
+        [DllImport("Netapi32.dll", EntryPoint = "NetApiBufferFree")]
+        public extern static int NetApiBufferFree(IntPtr Buffer);
 
         [StructLayout(LayoutKind.Sequential)]
         protected struct SHARE_INFO_1
@@ -66,6 +106,11 @@ namespace EDD
 
             [MarshalAs(UnmanagedType.LPWStr)]
             public string shi1_remark;
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        class LOCALGROUP_MEMBERS_INFO_3
+        {
+            public string domainandname;
         }
     }
 }
