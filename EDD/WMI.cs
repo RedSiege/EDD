@@ -7,7 +7,7 @@ namespace EDD
 {
     class WMI
     {
-        public void CheckProcesses(List<string> systemsToCheck, string procName)
+        public List<string> CheckProcesses(List<string> systemsToCheck, string procName)
         {
             List<string> systemsRunningTargetedProc = new List<string>();
 
@@ -56,15 +56,7 @@ namespace EDD
                 }
             }
 
-            if (systemsRunningTargetedProc.Count > 0)
-            {
-                Console.WriteLine("Systems running the process - " + procName);
-                Console.WriteLine("============================================");
-                foreach (string runningSystem in systemsRunningTargetedProc)
-                {
-                    Console.WriteLine("[+] " + runningSystem);
-                }
-            }
+            return systemsRunningTargetedProc;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
+using System.Runtime.InteropServices;
 
 
 namespace EDD
@@ -30,8 +31,19 @@ namespace EDD
 
         private static string GetCurrentDomainPath()
         {
-            DirectoryEntry de = new DirectoryEntry("LDAP://RootDSE");
-            return "LDAP://" + de.Properties["defaultNamingContext"][0].ToString();
+            try
+            {
+                DirectoryEntry de = new DirectoryEntry("LDAP://RootDSE");
+                return "LDAP://" + de.Properties["defaultNamingContext"][0].ToString();
+            }
+            catch (COMException)
+            {
+                Console.WriteLine("\nError:");
+                Console.WriteLine("Could not contact domain controller, exiting...");
+                Environment.Exit(1);
+            }
+
+            return "";
         }
 
         private static SearchResultCollection CustomSearchLDAP(string ldap_query, string[] optional_params = null)

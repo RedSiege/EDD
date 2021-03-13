@@ -11,7 +11,7 @@ namespace EDD
 {
     class Amass
     {
-        public void GetGroupMembers(string targetedComputer, string GroupName)
+        public List<string> GetGroupMembers(string targetedComputer, string GroupName)
         {
             List<string> groupMembers = new List<string>();
             int read;
@@ -22,27 +22,25 @@ namespace EDD
 
             if (ret != 0)
             {
-                return;
+                return groupMembers;
             }
             List<string> members = new List<string>();
             if (read > 0)
             {
                 var m = new LOCALGROUP_MEMBERS_INFO_3();
                 IntPtr pItem = pbuf;
-                Console.WriteLine("\nTargeting the system - " + targetedComputer);
-                Console.WriteLine("Members of the " + GroupName + " group include:");
-                Console.WriteLine("================================================");
                 for (int i = 0; i < read; ++i)
                 {
                     Marshal.PtrToStructure(pItem, m);
                     pItem = new IntPtr(pItem.ToInt64() + Marshal.SizeOf(typeof(LOCALGROUP_MEMBERS_INFO_3)));
-                    Console.WriteLine(m.domainandname);
+                    groupMembers.Add(m.domainandname);
                 }
             }
             NetApiBufferFree(pbuf);
+            return groupMembers;
         }
 
-        public void GetShares(List<string> targetedComputers)
+        public List<string> GetShares(List<string> targetedComputers)
         {
             List<string> filePathstoReview = new List<string>();
             foreach (string singleComp in targetedComputers)
@@ -72,15 +70,7 @@ namespace EDD
                 }
             }
 
-            if (filePathstoReview.Count > 0)
-            {
-                Console.WriteLine("\nAccessible Network Shares");
-                Console.WriteLine("============================");
-                foreach (string sharePath in filePathstoReview)
-                {
-                    Console.WriteLine(sharePath);
-                }
-            }
+            return filePathstoReview;
         }
 
         [DllImport("Netapi32.dll", EntryPoint = "NetShareEnum")]
