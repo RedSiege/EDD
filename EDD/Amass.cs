@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.DirectoryServices;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.DirectoryServices.AccountManagement;
 
 namespace EDD
 {
     class Amass
     {
-        public List<string> GetGroupMembers(string targetedComputer, string GroupName)
+        public List<string> GetLocalGroupMembers(string targetedComputer, string GroupName)
         {
             List<string> groupMembers = new List<string>();
             int read;
@@ -38,6 +35,29 @@ namespace EDD
             }
             NetApiBufferFree(pbuf);
             return groupMembers;
+        }
+
+        public List<string> GetDomainGroupMembers(string groupName)
+        {
+            List<string> domainGroupMembers = new List<string>();
+            // set up domain context
+            PrincipalContext ctx = new PrincipalContext(ContextType.Domain);
+
+            // find the group you're interested in
+            GroupPrincipal myGroup = GroupPrincipal.FindByIdentity(ctx, groupName);
+
+            // if you found it - get its members
+            if (myGroup != null)
+            {
+                // if your call the GetMembers, you can optionally specify a "Recursive" flag - done here
+                var allMembers = myGroup.GetMembers(true);
+                foreach (var groupMember in allMembers)
+                {
+                    domainGroupMembers.Add(groupMember.ToString());
+                }
+            }
+
+            return domainGroupMembers;
         }
 
         public List<string> GetShares(List<string> targetedComputers)

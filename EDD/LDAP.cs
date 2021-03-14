@@ -29,6 +29,26 @@ namespace EDD
             return compmodified_pgrpid;
         }
 
+        public List<string> CaptureDomainControllers()
+        {
+            List<string> dcList = new List<string>();
+            string computerprimary_Filter = "(&(objectCategory=computer)(objectClass=computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))";
+            string[] comppri_params = { "dnsHostName" };
+            SearchResultCollection computerprimary_results = CustomSearchLDAP(computerprimary_Filter, comppri_params);
+            foreach (SearchResult sr in computerprimary_results)
+            {
+                try
+                {
+                    dcList.Add(sr.Properties["dnsHostName"][0].ToString());
+                }
+                catch (Exception e)
+                {
+                    // threw an odd error
+                }
+            }
+            return dcList;
+        }
+
         private static string GetCurrentDomainPath()
         {
             try

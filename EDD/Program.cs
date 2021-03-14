@@ -73,11 +73,35 @@ namespace EDD
                         }
                         break;
 
+                    case "getdomaincontrollers":
+                        LDAP findDCs = new LDAP();
+                        List<string> domainControllers = findDCs.CaptureDomainControllers();
+                        if (domainControllers.Count > 0)
+                        {
+                            if (fileSavePath == null)
+                            {
+                                foreach (string systemName in domainControllers)
+                                {
+                                    Console.WriteLine(systemName);
+                                }
+                            }
+                            else
+                            {
+                                using (TextWriter tw = new StreamWriter(fileSavePath))
+                                {
+                                    foreach (String s in domainControllers)
+                                        tw.WriteLine(s);
+                                }
+                            }
+                        }
+                        break;
+
                     case "getnetlocalgroupmember":
-                        Amass shepherd = new Amass();
+                        
                         if ((computerTarget != null) & (targetedGroupName != null))
                         {
-                            List<string> localGroupMembers = shepherd.GetGroupMembers(computerTarget, targetedGroupName);
+                            Amass shepherd = new Amass();
+                            List<string> localGroupMembers = shepherd.GetLocalGroupMembers(computerTarget, targetedGroupName);
                             if (localGroupMembers.Count > 0)
                             {
                                 if (fileSavePath == null)
@@ -104,6 +128,33 @@ namespace EDD
                             Console.WriteLine("Please re-run with the required options");
                             Console.WriteLine("Exiting...");
                         }
+                        break;
+
+                    case "getdomaingroupmember":
+                        if (targetedGroupName != null)
+                        {
+                            Amass groupMemberEnum = new Amass();
+                            List<string> groupMembers = groupMemberEnum.GetDomainGroupMembers(targetedGroupName);
+                            if (groupMembers.Count > 0)
+                            {
+                                if (fileSavePath == null)
+                                {
+                                    foreach (string groupMember in groupMembers)
+                                    {
+                                        Console.WriteLine(groupMember);
+                                    }
+                                }
+                                else
+                                {
+                                    using (TextWriter tw = new StreamWriter(fileSavePath))
+                                    {
+                                        foreach (String s in groupMembers)
+                                            tw.WriteLine(s);
+                                    }
+                                }
+                            }
+                        }
+                        
                         break;
 
                     case "getdomainshares":
