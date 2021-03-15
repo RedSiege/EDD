@@ -1,11 +1,27 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.DirectoryServices;
 using System.Runtime.InteropServices;
 using System.DirectoryServices.AccountManagement;
+using EDD;
 
 namespace EDD
 {
+    class UserObject
+    {
+        public string SamAccountName = null;
+        public string Name = null;
+        public string Description = null;
+        public string DistinguishedName = null;
+        public string SID = null;
+        public List<string> DomainGroups { get; set; }
+        public UserObject()
+        {
+            DomainGroups = new List<string>();
+        }
+    }
+
     class Amass
     {
         public List<string> GetLocalGroupMembers(string targetedComputer, string GroupName)
@@ -58,6 +74,48 @@ namespace EDD
             }
 
             return domainGroupMembers;
+        }
+
+        public List<string> GetDomainUsersInfo()
+        {
+            List<string> domainUsers = new List<string>();
+            PrincipalContext insPrincipalContext = new PrincipalContext(ContextType.Domain);
+            UserPrincipal insUserPrincipal = new UserPrincipal(insPrincipalContext);
+            insUserPrincipal.Name = "*";
+            PrincipalSearcher insPrincipalSearcher = new PrincipalSearcher();
+            insPrincipalSearcher.QueryFilter = insUserPrincipal;
+            PrincipalSearchResult<Principal> results = insPrincipalSearcher.FindAll();
+            foreach (Principal p in results)
+            {
+                domainUsers.Add(p.ToString());
+            }
+
+            return domainUsers;
+        }
+
+        public UserObject GetDomainUserInfo(string singledOutUser)
+        {
+            PrincipalContext insPrincipalContext = new PrincipalContext(ContextType.Domain);
+            UserPrincipal insUserPrincipal = new UserPrincipal(insPrincipalContext);
+            insUserPrincipal.Name = singledOutUser;
+            PrincipalSearcher insPrincipalSearcher = new PrincipalSearcher();
+            insPrincipalSearcher.QueryFilter = insUserPrincipal;
+            PrincipalSearchResult<Principal> results = insPrincipalSearcher.FindAll();
+            UserObject singleUser = new UserObject();
+            foreach (Principal p in results)
+            {
+                singleUser.SamAccountName = p.SamAccountName;
+                singleUser.Name = p.Name;
+                singleUser.Description = p.Description;
+                singleUser.DistinguishedName = p.DistinguishedName;
+                singleUser.SID = p.Sid.ToString();
+                foreach (Principal groupName in p.GetGroups())
+                {
+                    singleUser.DomainGroups.Add(groupName.ToString());
+                }
+            }
+
+            return singleUser;
         }
 
         public List<string> GetShares(List<string> targetedComputers)

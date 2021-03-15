@@ -17,6 +17,7 @@ namespace EDD
                 string targetedGroupName = null;
                 string computerTarget = null;
                 string processTargeted = null;
+                string userAccountTargeted = null;
                 bool show_help = false;
                 var p = new OptionSet() {
                     { "f|function=", "the function you want to use", (v) => functionName = v },
@@ -24,6 +25,7 @@ namespace EDD
                     { "c|computer=", "the computer you are targeting", (v) => computerTarget = v },
                     { "g|groupname=", "the domain group you are targeting", (v) => targetedGroupName = v },
                     { "p|processname=", "the process you are targeting", (v) => processTargeted = v },
+                    { "u|username=", "the domain account you are targeting", (v) => userAccountTargeted = v },
                     { "h|help",  "show this message and exit",
                         v => show_help = v != null },
                 };
@@ -154,7 +156,57 @@ namespace EDD
                                 }
                             }
                         }
-                        
+                        else
+                        {
+                            Console.WriteLine("You did not provide a group name to target");
+                            Console.WriteLine("Exiting...");
+                        }
+                        break;
+
+                    case "getdomainusers":
+                        Amass userInfo = new Amass();
+                        List<string> allDomainUsers = userInfo.GetDomainUsersInfo();
+                        if (allDomainUsers.Count > 0)
+                        {
+                            if (fileSavePath == null)
+                            {
+                                foreach (string userName in allDomainUsers)
+                                {
+                                    Console.WriteLine(userName);
+                                }
+                            }
+                            else
+                            {
+                                using (TextWriter tw = new StreamWriter(fileSavePath))
+                                {
+                                    foreach (String s in allDomainUsers)
+                                        tw.WriteLine(s);
+                                }
+                            }
+                        }
+                        break;
+
+                    case "getdomainuser":
+                        if (userAccountTargeted != null)
+                        {
+                            Amass singleUserInfo = new Amass();
+                            UserObject soleUser = singleUserInfo.GetDomainUserInfo(userAccountTargeted);
+                            Console.WriteLine("SamAccountName: " + soleUser.SamAccountName);
+                            Console.WriteLine("Name: " + soleUser.Name);
+                            Console.WriteLine("Description: " + soleUser.Description);
+                            Console.WriteLine("Distinguished Name: " + soleUser.DistinguishedName);
+                            Console.WriteLine("SID: " + soleUser.SID);
+                            Console.WriteLine("\nDomain Groups:");
+                            foreach (string singleGroupName in soleUser.DomainGroups)
+                            {
+                                Console.WriteLine(singleGroupName);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("You did not provide a user account to look up!");
+                            Console.WriteLine("Exiting...");
+                        }
                         break;
 
                     case "getdomainshares":
@@ -211,22 +263,6 @@ namespace EDD
                         
                         break;
                 }
-
-                // Get a list of domain computers
-                //LDAP domainQuery = new LDAP();
-                //List<string> domainComputers = domainQuery.CaptureComputers();
-
-                // Searches across domain systems for a specific process running
-                //WMI processSearcher = new WMI();
-                //processSearcher.CheckProcesses(domainComputers, "putty.exe");
-
-                // Searches for domain shares that current account can access
-                //Amass shepherd = new Amass();
-                //shepherd.GetShares(domainComputers);
-
-                // Get list of local group members
-                //shepherd.GetGroupMembers("192.168.202.67", "Administrators");
-                
             }
             catch (Exception e)
             {

@@ -14,3 +14,7 @@ getnetdomaingroupmember - Returns a list of all users in a domain group
 getdomainshares - Get a list of all accessible domain shares
 
 finddomainprocess - Search for a specific process across all systems in the domain (requires admin access on remote systems)
+
+getdomainusers - Get a list of all domains users
+
+getdomainuser - Retrieves info about specific user (name, description, SID, Domain Groups)
