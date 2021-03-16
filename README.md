@@ -18,3 +18,7 @@ finddomainprocess - Search for a specific process across all systems in the doma
 getdomainusers - Get a list of all domains users
 
 getdomainuser - Retrieves info about specific user (name, description, SID, Domain Groups)
+
+getnetsession - Returns a list of accounts with sessions on the targeted system
+
+getnetloggedon - Returns a list of accounts logged into the targeted system

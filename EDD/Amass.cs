@@ -118,6 +118,74 @@ namespace EDD
             return singleUser;
         }
 
+        public List<SESSION_INFO_10> GetRemoteSessionInfo(string targetedSystem)
+        {
+            IntPtr Bufptr;
+            int nStatus = 0;
+            List<SESSION_INFO_10> sessionInfo = new List<SESSION_INFO_10>();
+            Int32 dwEntriesread = 0, dwTotalentries = 0, dwResume_handle = 0;
+
+            Bufptr = (IntPtr)Marshal.SizeOf(typeof(SESSION_INFO_10));
+            SESSION_INFO_10[] results = new SESSION_INFO_10[0];
+            do
+            {
+                nStatus = NetSessionEnum(targetedSystem, null, null, 10, out Bufptr, -1, ref dwEntriesread, ref dwTotalentries, ref dwResume_handle);
+                results = new SESSION_INFO_10[dwEntriesread];
+                if (nStatus == 234 || nStatus == 0)
+                {
+                    Int64 p = Bufptr.ToInt64();
+                    for (int i = 0; i < dwEntriesread; i++)
+                    {
+
+                        SESSION_INFO_10 si = (SESSION_INFO_10)Marshal.PtrToStructure(new IntPtr(p), typeof(SESSION_INFO_10));
+                        sessionInfo.Add(si);
+                        p += Marshal.SizeOf(typeof(SESSION_INFO_10));
+                    }
+                }
+                Marshal.FreeHGlobal(Bufptr);
+            }
+            while (nStatus == 234);
+
+            return sessionInfo;
+        }
+
+        public List<WKSTA_USER_INFO_1> GetLoggedOnUsers(string targetedComp)
+        {
+            IntPtr Bufptr;
+            List<WKSTA_USER_INFO_1> loggedonInfo = new List<WKSTA_USER_INFO_1>();
+            int nStatus = 0;
+            Int32 dwEntriesread = 0, dwTotalentries = 0, dwResumehandle = 0;
+
+            Bufptr = (IntPtr)Marshal.SizeOf(typeof(WKSTA_USER_INFO_1));
+            WKSTA_USER_INFO_1[] results = new WKSTA_USER_INFO_1[0];
+            do
+            {
+                nStatus = NetWkstaUserEnum(targetedComp, 1, out Bufptr, 32768, out dwEntriesread, out dwTotalentries, ref dwResumehandle);
+                if ((nStatus == 0) || (nStatus == 234))
+                {
+                    if (dwEntriesread > 0)
+                    {
+                        IntPtr pstruct = (IntPtr)Bufptr;
+                        
+                        for (int i = 0; i < dwEntriesread; i++)
+                        {
+                            WKSTA_USER_INFO_1 wui1 = (WKSTA_USER_INFO_1)Marshal.PtrToStructure(pstruct, typeof(WKSTA_USER_INFO_1));
+                            if (!wui1.wkui1_username.EndsWith("$"))
+                            {
+                                loggedonInfo.Add(wui1);
+                                pstruct = (IntPtr)((long)pstruct + Marshal.SizeOf(typeof(WKSTA_USER_INFO_1)));
+                            }
+                        }
+                    }
+                }
+
+                if (Bufptr != IntPtr.Zero)
+                    NetApiBufferFree(Bufptr);
+
+            } while (nStatus == 234);
+            return loggedonInfo;
+        }
+
         public List<string> GetShares(List<string> targetedComputers)
         {
             List<string> filePathstoReview = new List<string>();
@@ -163,6 +231,29 @@ namespace EDD
         [DllImport("Netapi32.dll", EntryPoint = "NetApiBufferFree")]
         public extern static int NetApiBufferFree(IntPtr Buffer);
 
+        [DllImport("netapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern int NetWkstaUserEnum(
+            string servername,
+            int level,
+            out IntPtr bufptr,
+            int prefmaxlen,
+            out int entriesread,
+            out int totalentries,
+            ref int resume_handle);
+
+        // found here https://github.com/RcoIl/CSharp-Tools
+        [DllImport("netapi32.dll", SetLastError = true)]
+        private static extern int NetSessionEnum(
+            [In, MarshalAs(UnmanagedType.LPWStr)] string ServerName,
+            [In, MarshalAs(UnmanagedType.LPWStr)] string UncClientName,
+            [In, MarshalAs(UnmanagedType.LPWStr)] string UserName,
+            Int32 Level,
+            out IntPtr bufptr,
+            int prefmaxlen,
+            ref Int32 entriesread,
+            ref Int32 totalentries,
+            ref Int32 resume_handle);
+
         [StructLayout(LayoutKind.Sequential)]
         protected struct SHARE_INFO_1
         {
@@ -179,6 +270,24 @@ namespace EDD
         class LOCALGROUP_MEMBERS_INFO_3
         {
             public string domainandname;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct SESSION_INFO_10
+        {
+            [MarshalAs(UnmanagedType.LPWStr)] public string sesi10_cname;
+            [MarshalAs(UnmanagedType.LPWStr)] public string sesi10_username;
+            public uint sesi10_time;
+            public uint sesi10_idle_time;
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct WKSTA_USER_INFO_1
+        {
+            public string wkui1_username;
+            public string wkui1_logon_domain;
+            public string wkui1_oth_domains;
+            public string wkui1_logon_server;
         }
     }
 }

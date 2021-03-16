@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using Mono.Options;
 
 namespace EDD
@@ -161,6 +162,86 @@ namespace EDD
                             Console.WriteLine("You did not provide a group name to target");
                             Console.WriteLine("Exiting...");
                         }
+                        break;
+
+                    case "getnetsession":
+                        if (computerTarget != null)
+                        {
+                            Amass sessionInfo = new Amass();
+                            List<Amass.SESSION_INFO_10> incomingSessions = sessionInfo.GetRemoteSessionInfo(computerTarget);
+                            if (incomingSessions.Count > 0)
+                            {
+                                if (fileSavePath == null)
+                                {
+                                    foreach (Amass.SESSION_INFO_10 sessionInformation in incomingSessions)
+                                    {
+                                        Console.WriteLine("Connection From: " + sessionInformation.sesi10_cname);
+                                        Console.WriteLine("Idle Time: " + sessionInformation.sesi10_idle_time);
+                                        Console.WriteLine("Total Active Time: " + sessionInformation.sesi10_time);
+                                        Console.WriteLine("Username: " + sessionInformation.sesi10_username);
+                                    }
+                                }
+                                else
+                                {
+                                    using (TextWriter tw = new StreamWriter(fileSavePath))
+                                    {
+                                        foreach (Amass.SESSION_INFO_10 sessIn in incomingSessions)
+                                        {
+                                            tw.WriteLine("Connection From: " + sessIn.sesi10_cname);
+                                            tw.WriteLine("Idle Time: " + sessIn.sesi10_idle_time);
+                                            tw.WriteLine("Total Active Time: " + sessIn.sesi10_time);
+                                            tw.WriteLine("Username: " + sessIn.sesi10_username);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("You need to specify a computer to target!");
+                            Console.WriteLine("Exiting...");
+                        }
+                        
+                        break;
+
+                    case "getnetloggedon":
+                        if (computerTarget != null)
+                        {
+                            Amass loggedInInfo = new Amass();
+                            List <Amass.WKSTA_USER_INFO_1> loggedInAccounts = loggedInInfo.GetLoggedOnUsers(computerTarget);
+                            if (loggedInAccounts.Count > 0)
+                            {
+                                if (fileSavePath == null)
+                                {
+                                    foreach (Amass.WKSTA_USER_INFO_1 sessionInformation in loggedInAccounts)
+                                    {
+                                        Console.WriteLine("Account Name: " + sessionInformation.wkui1_username);
+                                        Console.WriteLine("Domain Used by Account: " + sessionInformation.wkui1_logon_domain);
+                                        Console.WriteLine("Operating System Domains: " + sessionInformation.wkui1_oth_domains);
+                                        Console.WriteLine("Logon server: " + sessionInformation.wkui1_logon_server);
+                                    }
+                                }
+                                else
+                                {
+                                    using (TextWriter tw = new StreamWriter(fileSavePath))
+                                    {
+                                        foreach (Amass.WKSTA_USER_INFO_1 sessIn in loggedInAccounts)
+                                        {
+                                            tw.WriteLine("Account Name: " + sessIn.wkui1_username);
+                                            tw.WriteLine("Domain Used by Account: " + sessIn.wkui1_logon_domain);
+                                            tw.WriteLine("Operating System Domains: " + sessIn.wkui1_oth_domains);
+                                            tw.WriteLine("Logon server: " + sessIn.wkui1_logon_server);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("You need to provide a computer to target!");
+                            Console.WriteLine("Exiting...");
+                        }
+
                         break;
 
                     case "getdomainusers":
