@@ -244,6 +244,26 @@ namespace EDD
 
                         break;
 
+                    case "finddomainuser":
+                        if (targetedGroupName == null && userAccountTargeted == null)
+                        {
+                            LDAP compQuery = new LDAP();
+                            List<string> windowsComputers = compQuery.CaptureComputers();
+                            Amass findUser = new Amass();
+                            List<string> targetedUserList = new List<string>();
+                            List<Amass.SESSION_INFO_10> accountSessionList = new List<Amass.SESSION_INFO_10>();
+                            List<Amass.WKSTA_USER_INFO_1> loggedInUsers = new List<Amass.WKSTA_USER_INFO_1>();
+                            List<string> domainAdminList = findUser.GetDomainGroupMembers("Domain Admins");
+                            if (windowsComputers.Count > 0)
+                            {
+                                foreach (string computerHostName in windowsComputers)
+                                {
+                                    
+                                }
+                            }
+                        }
+                        break;
+
                     case "getdomainusers":
                         Amass userInfo = new Amass();
                         List<string> allDomainUsers = userInfo.GetDomainUsersInfo();
