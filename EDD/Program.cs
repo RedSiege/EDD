@@ -245,20 +245,142 @@ namespace EDD
                         break;
 
                     case "finddomainuser":
+                        LDAP compQuery = new LDAP();
+                        List<string> windowsComputers = compQuery.CaptureComputers();
+                        Amass findUser = new Amass();
+                        List<string> targetedUserList = new List<string>();
+                        List<Amass.SESSION_INFO_10> accountSessionList = new List<Amass.SESSION_INFO_10>();
+                        List<Amass.WKSTA_USER_INFO_1> loggedInUsers = new List<Amass.WKSTA_USER_INFO_1>();
                         if (targetedGroupName == null && userAccountTargeted == null)
                         {
-                            LDAP compQuery = new LDAP();
-                            List<string> windowsComputers = compQuery.CaptureComputers();
-                            Amass findUser = new Amass();
-                            List<string> targetedUserList = new List<string>();
-                            List<Amass.SESSION_INFO_10> accountSessionList = new List<Amass.SESSION_INFO_10>();
-                            List<Amass.WKSTA_USER_INFO_1> loggedInUsers = new List<Amass.WKSTA_USER_INFO_1>();
                             List<string> domainAdminList = findUser.GetDomainGroupMembers("Domain Admins");
                             if (windowsComputers.Count > 0)
                             {
                                 foreach (string computerHostName in windowsComputers)
                                 {
-                                    
+                                    List<Amass.WKSTA_USER_INFO_1> currentLoggedInAccounts = findUser.GetLoggedOnUsers(computerHostName);
+                                    foreach (string actualDA in domainAdminList)
+                                    {
+                                        if (currentLoggedInAccounts.Count > 0)
+                                        {
+                                            foreach (Amass.WKSTA_USER_INFO_1 loggedInHere in currentLoggedInAccounts)
+                                            {
+                                                if (String.Equals(loggedInHere.wkui1_username, actualDA,
+                                                    StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    targetedUserList.Add(loggedInHere.wkui1_username + " is currently logged into " + computerHostName);
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    List<Amass.SESSION_INFO_10> currentSessionInfo = findUser.GetRemoteSessionInfo(computerHostName);
+                                    foreach (string actualDAAgain in domainAdminList)
+                                    {
+                                        if (currentSessionInfo.Count > 0)
+                                        {
+                                            foreach (Amass.SESSION_INFO_10 sessInformation in currentSessionInfo)
+                                            {
+                                                if (String.Equals(sessInformation.sesi10_username, actualDAAgain, StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    targetedUserList.Add(sessInformation.sesi10_username + " has a session on " + computerHostName);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else if (targetedGroupName != null && userAccountTargeted == null)
+                        {
+                            List<string> domainGroupList = findUser.GetDomainGroupMembers(targetedGroupName);
+                            if (windowsComputers.Count > 0)
+                            {
+                                foreach (string computerHostName in windowsComputers)
+                                {
+                                    List<Amass.WKSTA_USER_INFO_1> currentLoggedInAccounts = findUser.GetLoggedOnUsers(computerHostName);
+                                    foreach (string actualUser in domainGroupList)
+                                    {
+                                        if (currentLoggedInAccounts.Count > 0)
+                                        {
+                                            foreach (Amass.WKSTA_USER_INFO_1 loggedInHere in currentLoggedInAccounts)
+                                            {
+                                                if (String.Equals(loggedInHere.wkui1_username, actualUser,
+                                                    StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    targetedUserList.Add(loggedInHere.wkui1_username + " is currently logged into " + computerHostName);
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    List<Amass.SESSION_INFO_10> currentSessionInfo = findUser.GetRemoteSessionInfo(computerHostName);
+                                    foreach (string actualDAAgain in domainGroupList)
+                                    {
+                                        if (currentSessionInfo.Count > 0)
+                                        {
+                                            foreach (Amass.SESSION_INFO_10 sessInformation in currentSessionInfo)
+                                            {
+                                                if (String.Equals(sessInformation.sesi10_username, actualDAAgain, StringComparison.OrdinalIgnoreCase))
+                                                {
+                                                    targetedUserList.Add(sessInformation.sesi10_username + " has a session on " + computerHostName);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else if (targetedGroupName == null && userAccountTargeted != null)
+                        {
+                            if (windowsComputers.Count > 0)
+                            {
+                                foreach (string computerHostName in windowsComputers)
+                                {
+                                    List<Amass.WKSTA_USER_INFO_1> currentLoggedInAccounts = findUser.GetLoggedOnUsers(computerHostName);
+                                    if (currentLoggedInAccounts.Count > 0)
+                                    {
+                                        foreach (Amass.WKSTA_USER_INFO_1 loggedInHere in currentLoggedInAccounts)
+                                        {
+                                            if (String.Equals(loggedInHere.wkui1_username, userAccountTargeted,
+                                                StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                targetedUserList.Add(loggedInHere.wkui1_username + " is currently logged into " + computerHostName);
+                                            }
+                                        }
+                                    }
+
+                                    List<Amass.SESSION_INFO_10> currentSessionInfo = findUser.GetRemoteSessionInfo(computerHostName);
+                                    if (currentSessionInfo.Count > 0)
+                                    {
+                                        foreach (Amass.SESSION_INFO_10 sessInformation in currentSessionInfo)
+                                        {
+                                            if (String.Equals(sessInformation.sesi10_username, userAccountTargeted, StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                targetedUserList.Add(sessInformation.sesi10_username + " has a session on " + computerHostName);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (targetedUserList.Count > 0)
+                        {
+                            if (fileSavePath == null)
+                            {
+                                Console.WriteLine("Targeted user(s) can be found on the following systems:");
+                                foreach (string userName in targetedUserList)
+                                {
+                                    Console.WriteLine(userName);
+                                }
+                            }
+                            else
+                            {
+                                using (TextWriter tw = new StreamWriter(fileSavePath))
+                                {
+                                    foreach (String s in targetedUserList)
+                                        tw.WriteLine(s);
                                 }
                             }
                         }
