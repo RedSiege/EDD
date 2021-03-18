@@ -1,35 +1,42 @@
 # EDD
-Enumerate Domain Data
+Enumerate Domain Data is designed to be similar to PowerView but in .NET. PowerView is essentially the ultimate domain enumeration tool, and we wanted a .NET implementation that we worked on ourselves. This tool was largely put together by viewing implementations of different functionality across a wide range of existing projects and combining them into EDD. 
 
 ## Functions
 
-getdomaincomputers - Get a list of all computers in the domain
+The following functions can be used with the -f flag to specify the data you want to enumerate/action you want to take.
 
-getdomaincontrollers - Gets a list of all domain controllers
+### Forest/Domain Information
+	getdomainsid - Returns the domain sid (by default current domain if no domain is provided)
+	getforest - returns the name of the current forest
+	getforestdomains - returns the name of all domains in the current forest
+	convertsidtoname - Converts a SID to the corresponding group or domain name (use the -u option for providing the SID value)
 
-getnetlocalgroupmember - Returns a list of all users in a local group on a remote system
+### Computer Information
+	getdomaincomputers - Get a list of all computers in the domain
+	getdomaincontrollers - Gets a list of all domain controllers
+	getdomainshares - Get a list of all accessible domain shares
 
-getnetdomaingroupmember - Returns a list of all users in a domain group
+### User Information
+	getnetlocalgroupmember - Returns a list of all users in a local group on a remote system
+	getnetdomaingroupmember - Returns a list of all users in a domain group
+	getdomainusers - Get a list of all domains users
+	getdomainuser - Retrieves info about specific user (name, description, SID, Domain Groups)
+	getnetsession - Returns a list of accounts with sessions on the targeted system
+	getnetloggedon - Returns a list of accounts logged into the targeted system
 
-getdomainshares - Get a list of all accessible domain shares
+### Chained Information
+	finddomainprocess - Search for a specific process across all systems in the domain (requires admin access on remote systems)
+	finddomainuser - Searches the domain environment for a specified user or group and tries to find active sessions (default searches for Domain Admins)
 
-finddomainprocess - Search for a specific process across all systems in the domain (requires admin access on remote systems)
 
-getdomainusers - Get a list of all domains users
+## References
+	PowerView - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
+	CSharp-Tools - https://github.com/RcoIl/CSharp-Tools
+	StackOverflow - Random questions (if this isn't somehow listed as a reference, we know we're forgetting it :))
 
-getdomainuser - Retrieves info about specific user (name, description, SID, Domain Groups)
 
-getnetsession - Returns a list of accounts with sessions on the targeted system
 
-getnetloggedon - Returns a list of accounts logged into the targeted system
 
-finddomainuser - Searches the domain environment for a specified user or group and tries to find active sessions (default searches for Domain Admins)
 
-getdomainsid - Returns the domain sid (by default current domain if no domain is provided)
 
-convertsidtoname - Converts a SID to the corresponding group or domain name (use the -u option for providing the SID value
-)
 
-getforest - returns the name of the current forest
-
-getforestdomains - returns the name of all domains in the current forest
