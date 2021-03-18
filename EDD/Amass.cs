@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.DirectoryServices.AccountManagement;
+using System.DirectoryServices.ActiveDirectory;
 using System.Security.Principal;
 
 namespace EDD
@@ -131,6 +132,11 @@ namespace EDD
             }
 
             return singleUser;
+        }
+
+        public Forest GetForestObject()
+        {
+            return Forest.GetCurrentForest();
         }
 
         public List<SESSION_INFO_10> GetRemoteSessionInfo(string targetedSystem)

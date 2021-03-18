@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.DirectoryServices.ActiveDirectory;
 using System.IO;
 using System.Runtime.InteropServices;
 using Mono.Options;
@@ -103,6 +104,23 @@ namespace EDD
                                         tw.WriteLine(s);
                                 }
                             }
+                        }
+                        break;
+
+                    case "getforest":
+                        Amass forestInfo = new Amass();
+                        Forest currentForest = forestInfo.GetForestObject();
+                        Console.WriteLine(currentForest.Name);
+                        break;
+
+                    case "getforestdomains":
+                        Amass forestDomains = new Amass();
+                        Forest theCurrentForest = forestDomains.GetForestObject();
+                        var forestDomainList = theCurrentForest.Domains;
+                        Console.WriteLine("\nDomains within " + theCurrentForest.Name + " are the following:");
+                        foreach (Domain internalDomain in forestDomainList)
+                        {
+                            Console.WriteLine(internalDomain);
                         }
                         break;
 
