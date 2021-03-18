@@ -55,6 +55,11 @@ namespace EDD
 
                 switch (functionName.ToLower())
                 {
+                    case "convertsidtoname":
+                        Amass sidConverter = new Amass();
+                        Console.WriteLine(sidConverter.GetUsernameFromSID(userAccountTargeted));
+                        break;
+
                     case "getdomaincomputers":
                         LDAP domainQuery = new LDAP();
                         List<string> domainComputers = domainQuery.CaptureComputers();
@@ -391,6 +396,20 @@ namespace EDD
                     case "getdomainsid":
                         LDAP ldapSIDFinder = new LDAP();
                         Console.WriteLine(ldapSIDFinder.GetDomainSID(domainNameTargeted));
+                        break;
+
+                    case "getdomaingroupsid":
+                        if (targetedGroupName != null)
+                        {
+                            Amass domainGroupSid = new Amass();
+                            string incomingSid = domainGroupSid.GetDomainGroupSID(targetedGroupName);
+                            Console.WriteLine(incomingSid);
+                        }
+                        else
+                        {
+                            Console.WriteLine("You never provided a domain group to target!");
+                            Console.WriteLine("Exiting...");
+                        }
                         break;
 
                     case "getdomainusers":

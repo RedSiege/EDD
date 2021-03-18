@@ -26,3 +26,6 @@ getnetloggedon - Returns a list of accounts logged into the targeted system
 finddomainuser - Searches the domain environment for a specified user or group and tries to find active sessions (default searches for Domain Admins)
 
 getdomainsid - Returns the domain sid (by default current domain if no domain is provided)
+
+convertsidtoname - Converts a SID to the corresponding group or domain name (use the -u option for providing the SID value
+)

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.DirectoryServices.AccountManagement;
+using System.Security.Principal;
 
 namespace EDD
 {
@@ -72,6 +73,22 @@ namespace EDD
             }
 
             return domainGroupMembers;
+        }
+
+        public string GetDomainGroupSID(string groupName)
+        {
+            // set up domain context
+            PrincipalContext ctx = new PrincipalContext(ContextType.Domain);
+            GroupPrincipal group = GroupPrincipal.FindByIdentity(ctx, groupName);
+            if (group != null)
+            {
+                SecurityIdentifier groupSid = group.Sid;
+                return groupSid.Value;
+            }
+            else
+            {
+                return "\nCould not find domain group, did you misspell the name?\nExiting...";
+            }
         }
 
         public List<string> GetDomainUsersInfo()
@@ -215,6 +232,19 @@ namespace EDD
             }
 
             return filePathstoReview;
+        }
+
+        public string GetUsernameFromSID(string sid)
+        {
+            try
+            {
+                SecurityIdentifier s = new SecurityIdentifier(sid);
+                return s.Translate(typeof(NTAccount)).Value;
+            }
+            catch (IdentityNotMappedException)
+            {
+                return "\nCould not map SID to user/group name.\nDid you provide the correct SID value?\nExiting...";
+            }
         }
 
         [DllImport("Netapi32.dll", EntryPoint = "NetShareEnum")]
