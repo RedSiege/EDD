@@ -34,4 +34,5 @@ The following functions can be used with the -f flag to specify the data you wan
 	PowerView - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
 	CSharp-Tools - https://github.com/RcoIl/CSharp-Tools
 	StackOverflow - Random questions (if this isn't somehow listed as a reference, we know we're forgetting it :))
+	SharpView - https://github.com/tevora-threat/SharpView
 
