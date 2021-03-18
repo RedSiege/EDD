@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
+using System.DirectoryServices.ActiveDirectory;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 
 
 namespace EDD
@@ -64,6 +66,33 @@ namespace EDD
             }
 
             return "";
+        }
+
+        public string GetDomainSID(string domainInfo)
+        {
+            string domainDnsName;
+            if (domainInfo == null)
+            {
+                domainDnsName = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().DomainName;
+            }
+            else
+            {
+                domainDnsName = domainInfo;
+            }
+
+            try
+            {
+                var domainContext = new DirectoryContext(DirectoryContextType.Domain, domainDnsName);
+                var domain = Domain.GetDomain(domainContext);
+                DirectoryEntry domainEntry = domain.GetDirectoryEntry();
+                byte[] domainSid = domainEntry.Properties["objectSID"].Value as byte[];
+                SecurityIdentifier strongDomainSid = new SecurityIdentifier(domainSid, 0);
+                return domainDnsName + " - " + strongDomainSid;
+            }
+            catch (ActiveDirectoryObjectNotFoundException)
+            {
+                return "\nDomain provided does not exist, or could not be contacted!\nExiting...";
+            }
         }
 
         private static SearchResultCollection CustomSearchLDAP(string ldap_query, string[] optional_params = null)

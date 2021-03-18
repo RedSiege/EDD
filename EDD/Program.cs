@@ -19,11 +19,13 @@ namespace EDD
                 string computerTarget = null;
                 string processTargeted = null;
                 string userAccountTargeted = null;
+                string domainNameTargeted = null;
                 bool show_help = false;
                 var p = new OptionSet() {
                     { "f|function=", "the function you want to use", (v) => functionName = v },
                     { "o|output=", "the path to the file to save", (v) => fileSavePath = v },
-                    { "c|computer=", "the computer you are targeting", (v) => computerTarget = v },
+                    { "c|computername=", "the computer you are targeting", (v) => computerTarget = v },
+                    { "d|domainname=", "the computer you are targeting", (v) => domainNameTargeted = v },
                     { "g|groupname=", "the domain group you are targeting", (v) => targetedGroupName = v },
                     { "p|processname=", "the process you are targeting", (v) => processTargeted = v },
                     { "u|username=", "the domain account you are targeting", (v) => userAccountTargeted = v },
@@ -384,6 +386,11 @@ namespace EDD
                                 }
                             }
                         }
+                        break;
+
+                    case "getdomainsid":
+                        LDAP ldapSIDFinder = new LDAP();
+                        Console.WriteLine(ldapSIDFinder.GetDomainSID(domainNameTargeted));
                         break;
 
                     case "getdomainusers":

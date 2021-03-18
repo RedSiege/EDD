@@ -24,3 +24,5 @@ getnetsession - Returns a list of accounts with sessions on the targeted system
 getnetloggedon - Returns a list of accounts logged into the targeted system
 
 finddomainuser - Searches the domain environment for a specified user or group and tries to find active sessions (default searches for Domain Admins)
+
+getdomainsid - Returns the domain sid (by default current domain if no domain is provided)
