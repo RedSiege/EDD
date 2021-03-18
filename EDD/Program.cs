@@ -411,6 +411,35 @@ namespace EDD
                         }
                         break;
 
+                    case "finddomainprocess":
+                        if (processTargeted != null)
+                        {
+                            LDAP procQuery = new LDAP();
+                            List<string> procComputers = procQuery.CaptureComputers();
+                            WMI processSearcher = new WMI();
+                            List<string> systemsWithProc = processSearcher.CheckProcesses(procComputers, processTargeted);
+                            if (systemsWithProc.Count > 0)
+                            {
+                                if (fileSavePath == null)
+                                {
+                                    foreach (string singleSys in systemsWithProc)
+                                    {
+                                        Console.WriteLine(singleSys);
+                                    }
+                                }
+                                else
+                                {
+                                    using (TextWriter tw = new StreamWriter(fileSavePath))
+                                    {
+                                        foreach (String s in systemsWithProc)
+                                            tw.WriteLine(s);
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+
                     case "getdomainsid":
                         LDAP ldapSIDFinder = new LDAP();
                         Console.WriteLine(ldapSIDFinder.GetDomainSID(domainNameTargeted));
@@ -501,33 +530,21 @@ namespace EDD
                         }
                         break;
 
-                    case "finddomainprocess":
-                        if (processTargeted != null)
+                    case "getuserswithspns":
+                        LDAP spnLookup = new LDAP();
+                        List<string> userListWitSPNs = spnLookup.GetAccountsWithSPNs();
+                        if (userListWitSPNs.Count > 0)
                         {
-                            LDAP procQuery = new LDAP();
-                            List<string> procComputers = procQuery.CaptureComputers();
-                            WMI processSearcher = new WMI();
-                            List<string> systemsWithProc = processSearcher.CheckProcesses(procComputers, processTargeted);
-                            if (systemsWithProc.Count > 0)
+                            Console.WriteLine("\nDomain accounts with SPNs:");
+                            foreach (string accName in userListWitSPNs)
                             {
-                                if (fileSavePath == null)
-                                {
-                                    foreach (string singleSys in systemsWithProc)
-                                    {
-                                        Console.WriteLine(singleSys);
-                                    }
-                                }
-                                else
-                                {
-                                    using (TextWriter tw = new StreamWriter(fileSavePath))
-                                    {
-                                        foreach (String s in systemsWithProc)
-                                            tw.WriteLine(s);
-                                    }
-                                }
+                                Console.WriteLine(accName);
                             }
                         }
-                        
+                        else
+                        {
+                            Console.WriteLine("\nEDD did not identify any accounts with SPNs");
+                        }
                         break;
                 }
             }

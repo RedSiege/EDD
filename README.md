@@ -23,6 +23,7 @@ The following functions can be used with the -f flag to specify the data you wan
 	getdomainuser - Retrieves info about specific user (name, description, SID, Domain Groups)
 	getnetsession - Returns a list of accounts with sessions on the targeted system
 	getnetloggedon - Returns a list of accounts logged into the targeted system
+	getuserswithspns - Returns a list of all domain accounts that have a SPN associated with them
 
 ### Chained Information
 	finddomainprocess - Search for a specific process across all systems in the domain (requires admin access on remote systems)
@@ -33,10 +34,4 @@ The following functions can be used with the -f flag to specify the data you wan
 	PowerView - https://github.com/PowerShellMafia/PowerSploit/blob/master/Recon/PowerView.ps1
 	CSharp-Tools - https://github.com/RcoIl/CSharp-Tools
 	StackOverflow - Random questions (if this isn't somehow listed as a reference, we know we're forgetting it :))
-
-
-
-
-
-
 

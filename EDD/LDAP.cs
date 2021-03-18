@@ -95,6 +95,27 @@ namespace EDD
             }
         }
 
+        public List<string> GetAccountsWithSPNs()
+        {
+            List<string> usersWithSPNs = new List<string>();
+            string spn_query = "(&(objectCategory=User)(servicePrincipalName=*))";
+            string[] extrauseruac_params = { "primaryGroupID", "name", "userAccountControl", "sAMAccountName" };
+            SearchResultCollection results = CustomSearchLDAP(spn_query, extrauseruac_params);
+            foreach (SearchResult sr in results)
+            {
+                if ((sr.Properties["sAMAccountName"].Count > 0) && (sr.Properties["sAMAccountName"][0] != null) && (sr.Properties.Contains("userAccountControl")))
+                {
+                    int spn_uac = Int32.Parse(sr.Properties["userAccountControl"][0].ToString());
+                    if (!((spn_uac & 2) == 2))
+                    {
+                        usersWithSPNs.Add(sr.Properties["sAMAccountName"][0].ToString());
+                    }
+                }
+            }
+
+            return usersWithSPNs;
+        }
+
         private static SearchResultCollection CustomSearchLDAP(string ldap_query, string[] optional_params = null)
         {
             DirectoryEntry newentry = new DirectoryEntry(GetCurrentDomainPath());
