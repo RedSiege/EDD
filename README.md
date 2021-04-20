@@ -1,6 +1,12 @@
 # EDD
 Enumerate Domain Data is designed to be similar to PowerView but in .NET. PowerView is essentially the ultimate domain enumeration tool, and we wanted a .NET implementation that we worked on ourselves. This tool was largely put together by viewing implementations of different functionality across a wide range of existing projects and combining them into EDD. 
 
+## Usage
+
+To use EDD, you just need to call the application, provide the function that you want to run (listed below) and provide any optional/required parameters used by the function.
+
+<img width="636" alt="Edd help" src="https://user-images.githubusercontent.com/1674822/115319813-d5625380-a13d-11eb-9176-cf98983112bf.png">
+
 ## Functions
 
 The following functions can be used with the -f flag to specify the data you want to enumerate/action you want to take.
