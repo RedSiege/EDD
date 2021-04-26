@@ -2,7 +2,7 @@
 
 using System.DirectoryServices.ActiveDirectory;
 
-namespace EDD.EDDFunctions
+namespace EDD.Functions
 {
     public class GetForest : EDDFunction
     {

@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace EDD.EDDFunctions
+namespace EDD.Functions
 {
     public class GetDomainUser : EDDFunction
     {

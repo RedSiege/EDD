@@ -1,6 +1,6 @@
 ﻿using EDD.Models;
 
-namespace EDD.EDDFunctions
+namespace EDD.Functions
 {
     public class ConvertSidToName : EDDFunction
     {

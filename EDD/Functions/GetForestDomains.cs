@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.DirectoryServices.ActiveDirectory;
 
-namespace EDD.EDDFunctions
+namespace EDD.Functions
 {
     class GetForestDomains : EDDFunction
     {

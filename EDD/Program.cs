@@ -12,7 +12,7 @@ namespace EDD
 {
     class Program
     {
-        static List<EDDFunction> _eddFunctions = new List<EDDFunction>();
+        static List<EDDFunction> _functions = new List<EDDFunction>();
 
         static void Main(string[] args)
         {
@@ -45,7 +45,7 @@ namespace EDD
 
                 InitFunctions();
 
-                EDDFunction function = _eddFunctions.FirstOrDefault(f => f.FunctionName.Equals(functionName, StringComparison.InvariantCultureIgnoreCase));
+                EDDFunction function = _functions.FirstOrDefault(f => f.FunctionName.Equals(functionName, StringComparison.InvariantCultureIgnoreCase));
 
                 if (function is null)
                 {
@@ -104,7 +104,7 @@ namespace EDD
                 if (type.IsSubclassOf(typeof(EDDFunction)))
                 {
                     EDDFunction function = Activator.CreateInstance(type) as EDDFunction;
-                    _eddFunctions.Add(function);
+                    _functions.Add(function);
                 }
             }
         }
