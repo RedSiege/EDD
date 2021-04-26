@@ -1,51 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.DirectoryServices.ActiveDirectory;
-using System.IO;
-using System.Runtime.InteropServices;
+﻿using EDD.Models;
+
 using Mono.Options;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace EDD
 {
     class Program
     {
+        static List<EDDFunction> _eddFunctions = new List<EDDFunction>();
+
         static void Main(string[] args)
         {
-            try
-            {
-                // parse CLI
-                string functionName = null;
-                string fileSavePath = null;
-                string targetedGroupName = null;
-                string computerTarget = null;
-                string processTargeted = null;
-                string userAccountTargeted = null;
-                string domainNameTargeted = null;
-                bool show_help = false;
-                var p = new OptionSet() {
+            ParsedArgs parsedArgs = new ParsedArgs();
+
+            string functionName = null;
+            string fileSavePath = null;
+            bool show_help = false;
+
+            var p = new OptionSet() {
                     { "f|function=", "the function you want to use", (v) => functionName = v },
                     { "o|output=", "the path to the file to save", (v) => fileSavePath = v },
-                    { "c|computername=", "the computer you are targeting", (v) => computerTarget = v },
-                    { "d|domainname=", "the computer you are targeting", (v) => domainNameTargeted = v },
-                    { "g|groupname=", "the domain group you are targeting", (v) => targetedGroupName = v },
-                    { "p|processname=", "the process you are targeting", (v) => processTargeted = v },
-                    { "u|username=", "the domain account you are targeting", (v) => userAccountTargeted = v },
-                    { "h|help",  "show this message and exit",
-                        v => show_help = v != null },
+                    { "c|computername=", "the computer you are targeting", (v) => parsedArgs.ComputerName = v },
+                    { "d|domainname=", "the computer you are targeting", (v) => parsedArgs.DomainName = v },
+                    { "g|groupname=", "the domain group you are targeting", (v) => parsedArgs.GroupName = v },
+                    { "p|processname=", "the process you are targeting", (v) => parsedArgs.ProcessName = v },
+                    { "u|username=", "the domain account you are targeting", (v) => parsedArgs.UserName = v },
+                    { "h|help",  "show this message and exit", v => show_help = v != null },
                 };
 
-                List<string> cliArgs;
-                try
-                {
-                    cliArgs = p.Parse(args);
-                }
-                catch (OptionException e)
-                {
-                    Console.Write("EDD.exe: ");
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine("Try `EDD.exe --help' for more information.");
-                    return;
-                }
+            try
+            {
+                p.Parse(args);
 
                 if (show_help)
                 {
@@ -53,507 +43,48 @@ namespace EDD
                     return;
                 }
 
+                InitFunctions();
 
-                switch (functionName.ToLower())
+                EDDFunction function = _eddFunctions.FirstOrDefault(f => f.FunctionName.Equals(functionName, StringComparison.InvariantCultureIgnoreCase));
+
+                if (function is null)
                 {
-                    case "convertsidtoname":
-                        Amass sidConverter = new Amass();
-                        Console.WriteLine(sidConverter.GetUsernameFromSID(userAccountTargeted));
-                        break;
+                    Console.WriteLine($"Function {functionName} does not exist");
+                    return;
+                }
 
-                    case "getdomaincomputers":
-                        LDAP domainQuery = new LDAP();
-                        List<string> domainComputers = domainQuery.CaptureComputers();
-                        if (domainComputers.Count > 0)
-                        {
-                            if (fileSavePath == null)
-                            {
-                                foreach (string systemName in domainComputers)
-                                {
-                                    Console.WriteLine(systemName);
-                                }
-                            }
-                            else
-                            {
-                                using (TextWriter tw = new StreamWriter(fileSavePath))
-                                {
-                                    foreach (String s in domainComputers)
-                                        tw.WriteLine(s);
-                                }
-                            }
-                        }
-                        break;
+                string[] results = function.Execute(parsedArgs);
 
-                    case "getdomaincontrollers":
-                        LDAP findDCs = new LDAP();
-                        List<string> domainControllers = findDCs.CaptureDomainControllers();
-                        if (domainControllers.Count > 0)
-                        {
-                            if (fileSavePath == null)
-                            {
-                                foreach (string systemName in domainControllers)
-                                {
-                                    Console.WriteLine(systemName);
-                                }
-                            }
-                            else
-                            {
-                                using (TextWriter tw = new StreamWriter(fileSavePath))
-                                {
-                                    foreach (String s in domainControllers)
-                                        tw.WriteLine(s);
-                                }
-                            }
-                        }
-                        break;
+                if (results is null || results.Length < 1)
+                {
+                    Console.WriteLine("No results");
+                    return;
+                }
 
-                    case "getforest":
-                        Amass forestInfo = new Amass();
-                        Forest currentForest = forestInfo.GetForestObject();
-                        Console.WriteLine(currentForest.Name);
-                        break;
+                foreach (string result in results)
+                    Console.WriteLine(result);
 
-                    case "getforestdomains":
-                        Amass forestDomains = new Amass();
-                        Forest theCurrentForest = forestDomains.GetForestObject();
-                        var forestDomainList = theCurrentForest.Domains;
-                        Console.WriteLine("\nDomains within " + theCurrentForest.Name + " are the following:");
-                        foreach (Domain internalDomain in forestDomainList)
-                        {
-                            Console.WriteLine(internalDomain);
-                        }
-                        break;
-
-                    case "getnetlocalgroupmember":
-                        
-                        if ((computerTarget != null) & (targetedGroupName != null))
-                        {
-                            Amass shepherd = new Amass();
-                            List<string> localGroupMembers = shepherd.GetLocalGroupMembers(computerTarget, targetedGroupName);
-                            if (localGroupMembers.Count > 0)
-                            {
-                                if (fileSavePath == null)
-                                {
-                                    foreach (string groupMember in localGroupMembers)
-                                    {
-                                        Console.WriteLine(groupMember);
-                                    }
-                                }
-                                else
-                                {
-                                    using (TextWriter tw = new StreamWriter(fileSavePath))
-                                    {
-                                        foreach (String s in localGroupMembers)
-                                            tw.WriteLine(s);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Error:");
-                            Console.WriteLine("You need to provide both the system and domain group you are targeting");
-                            Console.WriteLine("Please re-run with the required options");
-                            Console.WriteLine("Exiting...");
-                        }
-                        break;
-
-                    case "getdomaingroupmember":
-                        if (targetedGroupName != null)
-                        {
-                            Amass groupMemberEnum = new Amass();
-                            List<string> groupMembers = groupMemberEnum.GetDomainGroupMembers(targetedGroupName);
-                            if (groupMembers.Count > 0)
-                            {
-                                if (fileSavePath == null)
-                                {
-                                    foreach (string groupMember in groupMembers)
-                                    {
-                                        Console.WriteLine(groupMember);
-                                    }
-                                }
-                                else
-                                {
-                                    using (TextWriter tw = new StreamWriter(fileSavePath))
-                                    {
-                                        foreach (String s in groupMembers)
-                                            tw.WriteLine(s);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("You did not provide a group name to target");
-                            Console.WriteLine("Exiting...");
-                        }
-                        break;
-
-                    case "getnetsession":
-                        if (computerTarget != null)
-                        {
-                            Amass sessionInfo = new Amass();
-                            List<Amass.SESSION_INFO_10> incomingSessions = sessionInfo.GetRemoteSessionInfo(computerTarget);
-                            if (incomingSessions.Count > 0)
-                            {
-                                if (fileSavePath == null)
-                                {
-                                    foreach (Amass.SESSION_INFO_10 sessionInformation in incomingSessions)
-                                    {
-                                        Console.WriteLine("Connection From: " + sessionInformation.sesi10_cname);
-                                        Console.WriteLine("Idle Time: " + sessionInformation.sesi10_idle_time);
-                                        Console.WriteLine("Total Active Time: " + sessionInformation.sesi10_time);
-                                        Console.WriteLine("Username: " + sessionInformation.sesi10_username);
-                                    }
-                                }
-                                else
-                                {
-                                    using (TextWriter tw = new StreamWriter(fileSavePath))
-                                    {
-                                        foreach (Amass.SESSION_INFO_10 sessIn in incomingSessions)
-                                        {
-                                            tw.WriteLine("Connection From: " + sessIn.sesi10_cname);
-                                            tw.WriteLine("Idle Time: " + sessIn.sesi10_idle_time);
-                                            tw.WriteLine("Total Active Time: " + sessIn.sesi10_time);
-                                            tw.WriteLine("Username: " + sessIn.sesi10_username);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("You need to specify a computer to target!");
-                            Console.WriteLine("Exiting...");
-                        }
-                        
-                        break;
-
-                    case "getnetloggedon":
-                        if (computerTarget != null)
-                        {
-                            Amass loggedInInfo = new Amass();
-                            List <Amass.WKSTA_USER_INFO_1> loggedInAccounts = loggedInInfo.GetLoggedOnUsers(computerTarget);
-                            if (loggedInAccounts.Count > 0)
-                            {
-                                if (fileSavePath == null)
-                                {
-                                    foreach (Amass.WKSTA_USER_INFO_1 sessionInformation in loggedInAccounts)
-                                    {
-                                        Console.WriteLine("Account Name: " + sessionInformation.wkui1_username);
-                                        Console.WriteLine("Domain Used by Account: " + sessionInformation.wkui1_logon_domain);
-                                        Console.WriteLine("Operating System Domains: " + sessionInformation.wkui1_oth_domains);
-                                        Console.WriteLine("Logon server: " + sessionInformation.wkui1_logon_server);
-                                    }
-                                }
-                                else
-                                {
-                                    using (TextWriter tw = new StreamWriter(fileSavePath))
-                                    {
-                                        foreach (Amass.WKSTA_USER_INFO_1 sessIn in loggedInAccounts)
-                                        {
-                                            tw.WriteLine("Account Name: " + sessIn.wkui1_username);
-                                            tw.WriteLine("Domain Used by Account: " + sessIn.wkui1_logon_domain);
-                                            tw.WriteLine("Operating System Domains: " + sessIn.wkui1_oth_domains);
-                                            tw.WriteLine("Logon server: " + sessIn.wkui1_logon_server);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("You need to provide a computer to target!");
-                            Console.WriteLine("Exiting...");
-                        }
-
-                        break;
-
-                    case "finddomainuser":
-                        LDAP compQuery = new LDAP();
-                        List<string> windowsComputers = compQuery.CaptureComputers();
-                        Amass findUser = new Amass();
-                        List<string> targetedUserList = new List<string>();
-                        List<Amass.SESSION_INFO_10> accountSessionList = new List<Amass.SESSION_INFO_10>();
-                        List<Amass.WKSTA_USER_INFO_1> loggedInUsers = new List<Amass.WKSTA_USER_INFO_1>();
-                        if (targetedGroupName == null && userAccountTargeted == null)
-                        {
-                            List<string> domainAdminList = findUser.GetDomainGroupMembers("Domain Admins");
-                            if (windowsComputers.Count > 0)
-                            {
-                                foreach (string computerHostName in windowsComputers)
-                                {
-                                    List<Amass.WKSTA_USER_INFO_1> currentLoggedInAccounts = findUser.GetLoggedOnUsers(computerHostName);
-                                    foreach (string actualDA in domainAdminList)
-                                    {
-                                        if (currentLoggedInAccounts.Count > 0)
-                                        {
-                                            foreach (Amass.WKSTA_USER_INFO_1 loggedInHere in currentLoggedInAccounts)
-                                            {
-                                                if (String.Equals(loggedInHere.wkui1_username, actualDA,
-                                                    StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    targetedUserList.Add(loggedInHere.wkui1_username + " is currently logged into " + computerHostName);
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    List<Amass.SESSION_INFO_10> currentSessionInfo = findUser.GetRemoteSessionInfo(computerHostName);
-                                    foreach (string actualDAAgain in domainAdminList)
-                                    {
-                                        if (currentSessionInfo.Count > 0)
-                                        {
-                                            foreach (Amass.SESSION_INFO_10 sessInformation in currentSessionInfo)
-                                            {
-                                                if (String.Equals(sessInformation.sesi10_username, actualDAAgain, StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    targetedUserList.Add(sessInformation.sesi10_username + " has a session on " + computerHostName);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        else if (targetedGroupName != null && userAccountTargeted == null)
-                        {
-                            List<string> domainGroupList = findUser.GetDomainGroupMembers(targetedGroupName);
-                            if (windowsComputers.Count > 0)
-                            {
-                                foreach (string computerHostName in windowsComputers)
-                                {
-                                    List<Amass.WKSTA_USER_INFO_1> currentLoggedInAccounts = findUser.GetLoggedOnUsers(computerHostName);
-                                    foreach (string actualUser in domainGroupList)
-                                    {
-                                        if (currentLoggedInAccounts.Count > 0)
-                                        {
-                                            foreach (Amass.WKSTA_USER_INFO_1 loggedInHere in currentLoggedInAccounts)
-                                            {
-                                                if (String.Equals(loggedInHere.wkui1_username, actualUser,
-                                                    StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    targetedUserList.Add(loggedInHere.wkui1_username + " is currently logged into " + computerHostName);
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    List<Amass.SESSION_INFO_10> currentSessionInfo = findUser.GetRemoteSessionInfo(computerHostName);
-                                    foreach (string actualDAAgain in domainGroupList)
-                                    {
-                                        if (currentSessionInfo.Count > 0)
-                                        {
-                                            foreach (Amass.SESSION_INFO_10 sessInformation in currentSessionInfo)
-                                            {
-                                                if (String.Equals(sessInformation.sesi10_username, actualDAAgain, StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    targetedUserList.Add(sessInformation.sesi10_username + " has a session on " + computerHostName);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        else if (targetedGroupName == null && userAccountTargeted != null)
-                        {
-                            if (windowsComputers.Count > 0)
-                            {
-                                foreach (string computerHostName in windowsComputers)
-                                {
-                                    List<Amass.WKSTA_USER_INFO_1> currentLoggedInAccounts = findUser.GetLoggedOnUsers(computerHostName);
-                                    if (currentLoggedInAccounts.Count > 0)
-                                    {
-                                        foreach (Amass.WKSTA_USER_INFO_1 loggedInHere in currentLoggedInAccounts)
-                                        {
-                                            if (String.Equals(loggedInHere.wkui1_username, userAccountTargeted,
-                                                StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                targetedUserList.Add(loggedInHere.wkui1_username + " is currently logged into " + computerHostName);
-                                            }
-                                        }
-                                    }
-
-                                    List<Amass.SESSION_INFO_10> currentSessionInfo = findUser.GetRemoteSessionInfo(computerHostName);
-                                    if (currentSessionInfo.Count > 0)
-                                    {
-                                        foreach (Amass.SESSION_INFO_10 sessInformation in currentSessionInfo)
-                                        {
-                                            if (String.Equals(sessInformation.sesi10_username, userAccountTargeted, StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                targetedUserList.Add(sessInformation.sesi10_username + " has a session on " + computerHostName);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        if (targetedUserList.Count > 0)
-                        {
-                            if (fileSavePath == null)
-                            {
-                                Console.WriteLine("Targeted user(s) can be found on the following systems:");
-                                foreach (string userName in targetedUserList)
-                                {
-                                    Console.WriteLine(userName);
-                                }
-                            }
-                            else
-                            {
-                                using (TextWriter tw = new StreamWriter(fileSavePath))
-                                {
-                                    foreach (String s in targetedUserList)
-                                        tw.WriteLine(s);
-                                }
-                            }
-                        }
-                        break;
-
-                    case "finddomainprocess":
-                        if (processTargeted != null)
-                        {
-                            LDAP procQuery = new LDAP();
-                            List<string> procComputers = procQuery.CaptureComputers();
-                            WMI processSearcher = new WMI();
-                            List<string> systemsWithProc = processSearcher.CheckProcesses(procComputers, processTargeted);
-                            if (systemsWithProc.Count > 0)
-                            {
-                                if (fileSavePath == null)
-                                {
-                                    foreach (string singleSys in systemsWithProc)
-                                    {
-                                        Console.WriteLine(singleSys);
-                                    }
-                                }
-                                else
-                                {
-                                    using (TextWriter tw = new StreamWriter(fileSavePath))
-                                    {
-                                        foreach (String s in systemsWithProc)
-                                            tw.WriteLine(s);
-                                    }
-                                }
-                            }
-                        }
-
-                        break;
-
-                    case "getdomainsid":
-                        LDAP ldapSIDFinder = new LDAP();
-                        Console.WriteLine(ldapSIDFinder.GetDomainSID(domainNameTargeted));
-                        break;
-
-                    case "getdomaingroupsid":
-                        if (targetedGroupName != null)
-                        {
-                            Amass domainGroupSid = new Amass();
-                            string incomingSid = domainGroupSid.GetDomainGroupSID(targetedGroupName);
-                            Console.WriteLine(incomingSid);
-                        }
-                        else
-                        {
-                            Console.WriteLine("You never provided a domain group to target!");
-                            Console.WriteLine("Exiting...");
-                        }
-                        break;
-
-                    case "getdomainusers":
-                        Amass userInfo = new Amass();
-                        List<string> allDomainUsers = userInfo.GetDomainUsersInfo();
-                        if (allDomainUsers.Count > 0)
-                        {
-                            if (fileSavePath == null)
-                            {
-                                foreach (string userName in allDomainUsers)
-                                {
-                                    Console.WriteLine(userName);
-                                }
-                            }
-                            else
-                            {
-                                using (TextWriter tw = new StreamWriter(fileSavePath))
-                                {
-                                    foreach (String s in allDomainUsers)
-                                        tw.WriteLine(s);
-                                }
-                            }
-                        }
-                        break;
-
-                    case "getdomainuser":
-                        if (userAccountTargeted != null)
-                        {
-                            Amass singleUserInfo = new Amass();
-                            UserObject soleUser = singleUserInfo.GetDomainUserInfo(userAccountTargeted);
-                            Console.WriteLine("SamAccountName: " + soleUser.SamAccountName);
-                            Console.WriteLine("Name: " + soleUser.Name);
-                            Console.WriteLine("Description: " + soleUser.Description);
-                            Console.WriteLine("Distinguished Name: " + soleUser.DistinguishedName);
-                            Console.WriteLine("SID: " + soleUser.SID);
-                            Console.WriteLine("\nDomain Groups:");
-                            foreach (string singleGroupName in soleUser.DomainGroups)
-                            {
-                                Console.WriteLine(singleGroupName);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("You did not provide a user account to look up!");
-                            Console.WriteLine("Exiting...");
-                        }
-                        break;
-
-                    case "getdomainshares":
-                        LDAP computerQuery = new LDAP();
-                        List<string> domainSystems = computerQuery.CaptureComputers();
-                        Amass shareMe = new Amass();
-                        List<string> allShares = shareMe.GetShares(domainSystems);
-                        if (allShares.Count > 0)
-                        {
-                            if (fileSavePath == null)
-                            {
-                                foreach (string groupMember in allShares)
-                                {
-                                    Console.WriteLine(groupMember);
-                                }
-                            }
-                            else
-                            {
-                                using (TextWriter tw = new StreamWriter(fileSavePath))
-                                {
-                                    foreach (String s in allShares)
-                                        tw.WriteLine(s);
-                                }
-                            }
-                        }
-                        break;
-
-                    case "getuserswithspns":
-                        LDAP spnLookup = new LDAP();
-                        List<string> userListWitSPNs = spnLookup.GetAccountsWithSPNs();
-                        if (userListWitSPNs.Count > 0)
-                        {
-                            Console.WriteLine("\nDomain accounts with SPNs:");
-                            foreach (string accName in userListWitSPNs)
-                            {
-                                Console.WriteLine(accName);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("\nEDD did not identify any accounts with SPNs");
-                        }
-                        break;
+                if (!string.IsNullOrEmpty(fileSavePath))
+                {
+                    File.AppendAllText(fileSavePath, $"{functionName}:{Environment.NewLine}");
+                    File.AppendAllLines(fileSavePath, results);
+                    File.AppendAllText(fileSavePath, Environment.NewLine);
                 }
             }
-            catch (Exception e)
+            catch (OptionException e)
             {
-                Console.WriteLine("Error is - " + e);
+                Console.Write("EDD.exe: ");
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Try `EDD.exe --help' for more information.");
             }
-
-            Console.WriteLine("\n[!] EDD is done running!");
+            catch (EDDException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                Console.WriteLine("\n[!] EDD is done running!");
+            }
         }
 
         static void ShowHelp(OptionSet p)
@@ -564,6 +95,18 @@ namespace EDD
             Console.WriteLine();
             Console.WriteLine("Arguments:");
             p.WriteOptionDescriptions(Console.Out);
+        }
+
+        static void InitFunctions()
+        {
+            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+            {
+                if (type.IsSubclassOf(typeof(EDDFunction)))
+                {
+                    EDDFunction function = Activator.CreateInstance(type) as EDDFunction;
+                    _eddFunctions.Add(function);
+                }
+            }
         }
     }
 }
