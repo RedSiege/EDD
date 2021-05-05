@@ -97,13 +97,13 @@ namespace EDD
             List<string> domainUsers = new List<string>();
             PrincipalContext insPrincipalContext = new PrincipalContext(ContextType.Domain);
             UserPrincipal insUserPrincipal = new UserPrincipal(insPrincipalContext);
-            insUserPrincipal.Name = "*";
+            insUserPrincipal.SamAccountName = "*";
             PrincipalSearcher insPrincipalSearcher = new PrincipalSearcher();
             insPrincipalSearcher.QueryFilter = insUserPrincipal;
             PrincipalSearchResult<Principal> results = insPrincipalSearcher.FindAll();
             foreach (Principal p in results)
             {
-                domainUsers.Add(p.ToString());
+                domainUsers.Add(p.SamAccountName);
             }
 
             return domainUsers;
@@ -113,7 +113,7 @@ namespace EDD
         {
             PrincipalContext insPrincipalContext = new PrincipalContext(ContextType.Domain);
             UserPrincipal insUserPrincipal = new UserPrincipal(insPrincipalContext);
-            insUserPrincipal.Name = singledOutUser;
+            insUserPrincipal.SamAccountName = singledOutUser;
             PrincipalSearcher insPrincipalSearcher = new PrincipalSearcher();
             insPrincipalSearcher.QueryFilter = insUserPrincipal;
             PrincipalSearchResult<Principal> results = insPrincipalSearcher.FindAll();
