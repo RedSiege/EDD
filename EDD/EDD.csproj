@@ -65,6 +65,7 @@
     <Compile Include="Amass.cs" />
     <Compile Include="Functions\FindDomainProcess.cs" />
     <Compile Include="Functions\FindDomainUser.cs" />
+    <Compile Include="Functions\FindInterestingFiles.cs" />
     <Compile Include="Functions\GetDomainComputers.cs" />
     <Compile Include="Functions\GetDomainControllers.cs" />
     <Compile Include="Functions\GetDomainGroupMember.cs" />

@@ -4,6 +4,7 @@ using Mono.Options;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,29 +13,35 @@ namespace EDD
 {
     class Program
     {
-        static List<EDDFunction> _functions = new List<EDDFunction>();
+        static readonly List<EDDFunction> _functions = new List<EDDFunction>();
 
         static void Main(string[] args)
         {
-            ParsedArgs parsedArgs = new ParsedArgs();
-
-            string functionName = null;
-            string fileSavePath = null;
-            bool show_help = false;
-
-            var p = new OptionSet() {
-                    { "f|function=", "the function you want to use", (v) => functionName = v },
-                    { "o|output=", "the path to the file to save", (v) => fileSavePath = v },
-                    { "c|computername=", "the computer you are targeting", (v) => parsedArgs.ComputerName = v },
-                    { "d|domainname=", "the computer you are targeting", (v) => parsedArgs.DomainName = v },
-                    { "g|groupname=", "the domain group you are targeting", (v) => parsedArgs.GroupName = v },
-                    { "p|processname=", "the process you are targeting", (v) => parsedArgs.ProcessName = v },
-                    { "u|username=", "the domain account you are targeting", (v) => parsedArgs.UserName = v },
-                    { "h|help",  "show this message and exit", v => show_help = v != null },
-                };
-
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             try
             {
+                ParsedArgs parsedArgs = new ParsedArgs();
+
+                string functionName = null;
+                string fileSavePath = null;
+                bool show_help = false;
+
+                var p = new OptionSet()
+                {
+                    {"f|function=", "the function you want to use", (v) => functionName = v},
+                    {"o|output=", "the path to the file to save", (v) => fileSavePath = v},
+                    {"c|computername=", "the computer you are targeting", (v) => parsedArgs.ComputerName = v},
+                    {"d|domainname=", "the computer you are targeting", (v) => parsedArgs.DomainName = v},
+                    {"g|groupname=", "the domain group you are targeting", (v) => parsedArgs.GroupName = v},
+                    {"p|processname=", "the process you are targeting", (v) => parsedArgs.ProcessName = v},
+                    {"u|username=", "the domain account you are targeting", (v) => parsedArgs.UserName = v},
+                    {"t|threads=", "the number of threads to run (default: 5)", (int t) => parsedArgs.Threads = t},
+                    {"s|search=", "the search terms for FindInterestingDomainShareFile separated by a comma (,)", (string[] s) => parsedArgs.SearchTerms = s},
+                    {"h|help", "show this message and exit", v => show_help = v != null}
+                };
+
+
                 p.Parse(args);
 
                 if (show_help)
@@ -45,7 +52,8 @@ namespace EDD
 
                 InitFunctions();
 
-                EDDFunction function = _functions.FirstOrDefault(f => f.FunctionName.Equals(functionName, StringComparison.InvariantCultureIgnoreCase));
+                EDDFunction function = _functions.FirstOrDefault(f =>
+                    f.FunctionName.Equals(functionName, StringComparison.InvariantCultureIgnoreCase));
 
                 if (function is null)
                 {
@@ -53,7 +61,11 @@ namespace EDD
                     return;
                 }
 
-                string[] results = function.Execute(parsedArgs);
+                if (parsedArgs.Threads <= 0)
+                    parsedArgs.Threads = 5;
+                
+                string[] results = function
+                        .Execute(parsedArgs).AsParallel().AsOrdered().WithDegreeOfParallelism(parsedArgs.Threads).ToArray();
 
                 if (results is null || results.Length < 1)
                 {
@@ -81,9 +93,15 @@ namespace EDD
             {
                 Console.WriteLine(e.Message);
             }
+            catch (NotImplementedException)
+            {
+                Console.WriteLine("\n[-] That command is not implemented, please try a different one.");
+            }
             finally
             {
-                Console.WriteLine("\n[!] EDD is done running!");
+                Console.WriteLine("\n[!] EDD is done running!\n");
+                watch.Stop();
+                Console.WriteLine("Execution time: " + watch.ElapsedMilliseconds / 1000 + " Seconds");
             }
         }
 
