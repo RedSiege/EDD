@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
+using System.Linq;
 using System.Security.Principal;
 
 namespace EDD
@@ -207,37 +208,59 @@ namespace EDD
             return loggedonInfo;
         }
 
-        public List<string> GetShares(List<string> targetedComputers)
+        public string[] GetShares(List<string> targetedComputers, int threads)
         {
-            List<string> filePathstoReview = new List<string>();
-            foreach (string singleComp in targetedComputers)
-            {
-                IntPtr buffer;
-                uint entriesread;
-                uint totalentries;
-                uint resume_handle;
+            List<string> filePathsList = new List<string>();
+            // These aren't currently needed but if we run into issues in the future we'll implement them
+            string[] excludeShares = new[] { "C$", "Admin$", "IPC$", "Print$" };
 
-                if (NetShareEnum(singleComp, 1, out buffer, -1, out entriesread, out totalentries, out resume_handle) == 0)
+            string[][] filePaths = targetedComputers
+                .AsParallel().WithDegreeOfParallelism(threads)
+                .Select(DoGetShares).ToArray();
+
+            foreach (var filePath in filePaths)
+            {
+                foreach (var share in filePath)
                 {
-                    Int64 ptr = buffer.ToInt64();
-                    ArrayList alShare = new ArrayList();
-                    for (int i = 0; i < entriesread; i++)
-                    {
-                        SHARE_INFO_1 shareInfo = (SHARE_INFO_1)Marshal.PtrToStructure(new IntPtr(ptr), typeof(SHARE_INFO_1));
-                        if (shareInfo.shi1_type == 0) //Disk drive
-                        {
-                            alShare.Add(shareInfo.shi1_netname);
-                        }
-                        ptr += Marshal.SizeOf(shareInfo);
-                    }
-                    for (int i = 0; i < alShare.Count; i++)
-                    {
-                        filePathstoReview.Add("\\\\" + singleComp + "\\" + alShare[i].ToString());
-                    }
+                    filePathsList.Add(share);
                 }
             }
 
-            return filePathstoReview;
+            return filePathsList.ToArray();
+        }
+
+        public string[] DoGetShares(string target)
+        {
+            List<string> filePathstoReview = new List<string>();
+
+            IntPtr buffer;
+            uint entriesread;
+            uint totalentries;
+            uint resume_handle;
+
+            if (NetShareEnum(target, 1, out buffer, -1, out entriesread, out totalentries, out resume_handle) == 0)
+            {
+                Int64 ptr = buffer.ToInt64();
+                ArrayList alShare = new ArrayList();
+                for (int i = 0; i < entriesread; i++)
+                {
+                    SHARE_INFO_1 shareInfo =
+                        (SHARE_INFO_1) Marshal.PtrToStructure(new IntPtr(ptr), typeof(SHARE_INFO_1));
+                    if (shareInfo.shi1_type == 0) //Disk drive
+                    {
+                        alShare.Add(shareInfo.shi1_netname);
+                    }
+
+                    ptr += Marshal.SizeOf(shareInfo);
+                }
+
+                for (int i = 0; i < alShare.Count; i++)
+                {
+                    filePathstoReview.Add("\\\\" + target + "\\" + alShare[i].ToString());
+                }
+            }
+
+            return filePathstoReview.ToArray();
         }
 
         public string GetUsernameFromSID(string sid)
