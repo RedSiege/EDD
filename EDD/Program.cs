@@ -1,7 +1,5 @@
 ﻿using EDD.Models;
-
 using Mono.Options;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,7 +35,9 @@ namespace EDD
                     {"p|processname=", "the process you are targeting", (v) => parsedArgs.ProcessName = v},
                     {"u|username=", "the domain account you are targeting", (v) => parsedArgs.UserName = v},
                     {"t|threads=", "the number of threads to run (default: 5)", (int t) => parsedArgs.Threads = t},
-                    {"s|search=", "the search terms for FindInterestingDomainShareFile separated by a comma (,)", (string[] s) => parsedArgs.SearchTerms = s},
+                    {"s|search=", "the search term(s) for FindInterestingDomainShareFile separated by a comma (,), accepts wildcards", 
+                        (string s) => parsedArgs.SearchTerms = s?.Split(',')},
+                    {"sharepath=", "the specific share to search for interesting files", (v) => parsedArgs.SharePath = v},
                     {"h|help", "show this message and exit", v => show_help = v != null}
                 };
 
@@ -63,9 +63,8 @@ namespace EDD
 
                 if (parsedArgs.Threads <= 0)
                     parsedArgs.Threads = 5;
-                
-                string[] results = function
-                        .Execute(parsedArgs).AsParallel().AsOrdered().WithDegreeOfParallelism(parsedArgs.Threads).ToArray();
+
+                string[] results = function.Execute(parsedArgs);
 
                 if (results is null || results.Length < 1)
                 {
@@ -73,6 +72,7 @@ namespace EDD
                     return;
                 }
 
+                Console.WriteLine();
                 foreach (string result in results)
                     Console.WriteLine(result);
 

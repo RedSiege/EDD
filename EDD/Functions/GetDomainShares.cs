@@ -13,9 +13,9 @@ namespace EDD.Functions
             LDAP computerQuery = new LDAP();
             List<string> domainSystems = computerQuery.CaptureComputers();
             Amass shareMe = new Amass();
-            List<string> allShares = shareMe.GetShares(domainSystems);
+            string[] allShares = shareMe.GetShares(domainSystems, args.Threads);
 
-            return allShares.ToArray();
+            return allShares;
         }
     }
 }

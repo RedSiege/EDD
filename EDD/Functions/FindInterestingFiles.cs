@@ -1,9 +1,10 @@
 ﻿using System;
 using EDD.Models;
-
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace EDD.Functions
 {
@@ -15,35 +16,103 @@ namespace EDD.Functions
         {
             LDAP computerQuery = new LDAP();
             List<string> interestingFiles = new List<string>();
+            List<Regex> regexList = new List<Regex>();
+            string[] allShares = new string[1];
 
-            List<string> domainSystems = computerQuery.CaptureComputers();
-            Amass shareMe = new Amass();
-            List<string> allShares = shareMe.GetShares(domainSystems);
-
-            foreach (var share in allShares.ToArray())
+            if (string.IsNullOrEmpty(args.SharePath))
             {
-                try
-                {
-                    foreach (var fileSystemEntry in Directory.EnumerateFileSystemEntries(share, "*", SearchOption.AllDirectories))
-                    {
-                        Console.WriteLine(args.SearchTerms);
-                        Console.WriteLine(fileSystemEntry);
-                    }
-                }
-                catch (UnauthorizedAccessException e)
-                {
-                    Console.WriteLine("Directory not accessable: ");
-                    
-                }
-                
-                //foreach (var file in Directory.GetFiles(share)) 
-                //{
-                //    interestingFiles.Add(file);
-                //    //Console.WriteLine(file);
-                //}
+                List<string> domainSystems = computerQuery.CaptureComputers();
+                Amass shareMe = new Amass();
+                allShares = shareMe.GetShares(domainSystems, args.Threads);
+            }
+            else
+            {
+                allShares[0] = args.SharePath;
             }
 
+
+            // We need to convert the given wildcard string to regex and account for multiple strings
+            foreach (var term in args.SearchTerms)
+            {
+                if (term.Contains("*"))
+                {
+                    string regexText = WildcardToRegex(term);
+                    Regex regex = new Regex(regexText, RegexOptions.IgnoreCase);
+                    regexList.Add(regex);
+                }
+                else
+                {
+                    Regex regex = new Regex(term, RegexOptions.IgnoreCase);
+                    regexList.Add(regex);
+                }
+            }
+
+            // Pipe multiple search strings together into one regex string
+            var regexString = regexList.Count() > 1 ? string.Join("|", regexList) : regexList[0].ToString();
+
+            if (allShares != null)
+                foreach (var share in allShares)
+                {
+                    try
+                    {
+                        Parallel.ForEach(GetFiles(share), file =>
+                        {
+                            if (Regex.IsMatch(file, regexString, RegexOptions.IgnoreCase))
+                                interestingFiles.Add(file);
+                        });
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        //Do nothing
+                    }
+                }
+
             return interestingFiles.ToArray();
+        }
+
+        // Borrowed from SO - https://stackoverflow.com/a/929418
+        static IEnumerable<string> GetFiles(string path)
+        {
+            Queue<string> queue = new Queue<string>();
+            queue.Enqueue(path);
+            while (queue.Count > 0)
+            {
+                path = queue.Dequeue();
+                try
+                {
+                    foreach (string subDir in Directory.GetDirectories(path))
+                    {
+                        queue.Enqueue(subDir);
+                    }
+                }
+                catch (Exception)
+                {
+                }
+                string[] files = null;
+                try
+                {
+                    files = Directory.GetFiles(path);
+                }
+                catch (Exception)
+                {
+                }
+                if (files != null)
+                {
+                    foreach (var t in files)
+                    {
+                        yield return t;
+                    }
+                }
+            }
+        }
+
+        // Borrowed from SO - https://stackoverflow.com/a/31490838
+        public static string WildcardToRegex(string pattern)
+        {
+            return "^" + Regex.Escape(pattern)
+                              .Replace(@"\*", ".*")
+                              .Replace(@"\?", ".")
+                       + "$";
         }
     }
 }
