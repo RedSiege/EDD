@@ -10,8 +10,16 @@ namespace EDD.Functions
 
         public override string[] Execute(ParsedArgs args)
         {
+            List<string> domainComputers = new List<string>();
             LDAP domainQuery = new LDAP();
-            List<string> domainComputers = domainQuery.CaptureComputers();
+            if (string.IsNullOrEmpty(args.DomainName))
+            {
+                domainComputers = domainQuery.CaptureComputers();
+            }
+            else
+            {
+                domainComputers = domainQuery.CaptureComputers(args.DomainName);
+            }
             return domainComputers.ToArray();
         }
     }

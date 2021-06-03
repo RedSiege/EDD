@@ -10,24 +10,42 @@ namespace EDD
 {
     class LDAP
     {
-        public List<string> CaptureComputers()
+        public List<string> CaptureComputers(string domainName = null)
         {
             List<string> compmodified_pgrpid = new List<string>();
             string computerprimary_Filter = "(&(objectCategory=computer))";
             string[] comppri_params = { "dnsHostName" };
-            SearchResultCollection computerprimary_results = CustomSearchLDAP(computerprimary_Filter, comppri_params);
-            foreach (SearchResult sr in computerprimary_results)
+            if (domainName == null)
             {
-                try
+                SearchResultCollection computerprimary_results = CustomSearchLDAP(computerprimary_Filter, comppri_params);
+                foreach (SearchResult sr in computerprimary_results)
                 {
-                    compmodified_pgrpid.Add(sr.Properties["dnsHostName"][0].ToString());
+                    try
+                    {
+                        compmodified_pgrpid.Add(sr.Properties["dnsHostName"][0].ToString());
+                    }
+                    catch (Exception e)
+                    {
+                        // threw an odd error
+                    }
                 }
-                catch (Exception e)
-                {
-                    // threw an odd error
-                }
-                
             }
+            else
+            {
+                SearchResultCollection computerprimary_results = CustomSearchLDAP(computerprimary_Filter, comppri_params, domainName);
+                foreach (SearchResult sr in computerprimary_results)
+                {
+                    try
+                    {
+                        compmodified_pgrpid.Add(sr.Properties["dnsHostName"][0].ToString());
+                    }
+                    catch (Exception e)
+                    {
+                        // threw an odd error
+                    }
+                }
+            }
+            
             return compmodified_pgrpid;
         }
 
@@ -116,9 +134,20 @@ namespace EDD
             return usersWithSPNs;
         }
 
-        private static SearchResultCollection CustomSearchLDAP(string ldap_query, string[] optional_params = null)
+        private static SearchResultCollection CustomSearchLDAP(string ldap_query, string[] optional_params = null, string subDomain = null)
         {
-            DirectoryEntry newentry = new DirectoryEntry(GetCurrentDomainPath());
+            DirectoryEntry newentry;
+            if (subDomain == null)
+            {
+                newentry = new DirectoryEntry(GetCurrentDomainPath());
+            }
+            else
+            {
+                string ldapQueryBuild = GetCurrentDomainPath();
+                string modified = ldapQueryBuild.Insert(7, "DC=" + subDomain + ",");
+                newentry = new DirectoryEntry(modified);
+            }
+            
             if (optional_params == null)
             {
                 DirectorySearcher ds = new DirectorySearcher(newentry);
