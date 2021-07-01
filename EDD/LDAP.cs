@@ -49,21 +49,39 @@ namespace EDD
             return compmodified_pgrpid;
         }
 
-        public List<string> CaptureDomainControllers()
+        public List<string> CaptureDomainControllers(string domainName = null)
         {
             List<string> dcList = new List<string>();
             string computerprimary_Filter = "(&(objectCategory=computer)(objectClass=computer)(userAccountControl:1.2.840.113556.1.4.803:=8192))";
             string[] comppri_params = { "dnsHostName" };
-            SearchResultCollection computerprimary_results = CustomSearchLDAP(computerprimary_Filter, comppri_params);
-            foreach (SearchResult sr in computerprimary_results)
+            if (domainName == null)
             {
-                try
+                SearchResultCollection computerprimary_results = CustomSearchLDAP(computerprimary_Filter, comppri_params);
+                foreach (SearchResult sr in computerprimary_results)
                 {
-                    dcList.Add(sr.Properties["dnsHostName"][0].ToString());
+                    try
+                    {
+                        dcList.Add(sr.Properties["dnsHostName"][0].ToString());
+                    }
+                    catch (Exception e)
+                    {
+                        // threw an odd error
+                    }
                 }
-                catch (Exception e)
+            }
+            else
+            {
+                SearchResultCollection computerprimary_results = CustomSearchLDAP(computerprimary_Filter, comppri_params, domainName);
+                foreach (SearchResult sr in computerprimary_results)
                 {
-                    // threw an odd error
+                    try
+                    {
+                        dcList.Add(sr.Properties["dnsHostName"][0].ToString());
+                    }
+                    catch (Exception e)
+                    {
+                        // threw an odd error
+                    }
                 }
             }
             return dcList;
@@ -74,7 +92,7 @@ namespace EDD
             try
             {
                 DirectoryEntry de = new DirectoryEntry("LDAP://RootDSE");
-                return "LDAP://" + de.Properties["defaultNamingContext"][0].ToString();
+                return "GC://" + de.Properties["defaultNamingContext"][0].ToString();
             }
             catch (COMException)
             {
@@ -137,6 +155,7 @@ namespace EDD
         private static SearchResultCollection CustomSearchLDAP(string ldap_query, string[] optional_params = null, string subDomain = null)
         {
             DirectoryEntry newentry;
+            string modified = "";
             if (subDomain == null)
             {
                 newentry = new DirectoryEntry(GetCurrentDomainPath());
@@ -144,13 +163,41 @@ namespace EDD
             else
             {
                 string ldapQueryBuild = GetCurrentDomainPath();
-                string modified = ldapQueryBuild.Insert(7, "DC=" + subDomain + ",");
+                string[] ldap_split = ldapQueryBuild.Split(',');
+                StringComparison stringCompare = StringComparison.CurrentCultureIgnoreCase;
+                if (ldapQueryBuild.IndexOf(subDomain, stringCompare) >= 0)
+                {
+                    if (ldap_split.Length > 2)
+                    {
+                        if (ldap_split[ldap_split.Length - 2].IndexOf(subDomain, stringCompare) >= 0)
+                        {
+                            modified = "LDAP://" + ldap_split[ldap_split.Length - 2] + ',' +
+                                       ldap_split[ldap_split.Length - 1];
+                        }
+                        else
+                        {
+                            modified = "GC://DC=" + subDomain + "," + ldap_split[ldap_split.Length - 2] + ',' + ldap_split[ldap_split.Length - 1];
+                        }
+                    }
+                }
+                else
+                {
+                    if (ldap_split.Length > 2)
+                    {
+                        modified = "GC://DC=" + subDomain + "," + ldap_split[ldap_split.Length - 2] + ',' + ldap_split[ldap_split.Length - 1];
+                    }
+                    else
+                    {
+                        modified = ldapQueryBuild.Insert(5, "DC=" + subDomain + ",");
+                    }
+                }
                 newentry = new DirectoryEntry(modified);
             }
-            
+
             if (optional_params == null)
             {
                 DirectorySearcher ds = new DirectorySearcher(newentry);
+                ds.ReferralChasing = ReferralChasingOption.All;
                 ds.Filter = ldap_query;
                 ds.SearchScope = SearchScope.Subtree;
                 ds.PageSize = 500;
@@ -160,6 +207,7 @@ namespace EDD
             else
             {
                 DirectorySearcher ds = new DirectorySearcher(newentry);
+                ds.ReferralChasing = ReferralChasingOption.All;
                 ds.Filter = ldap_query;
                 ds.SearchScope = SearchScope.Subtree;
                 ds.PageSize = 500;
