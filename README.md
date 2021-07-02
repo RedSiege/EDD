@@ -5,7 +5,8 @@ Enumerate Domain Data is designed to be similar to PowerView but in .NET. PowerV
 
 To use EDD, you just need to call the application, provide the function that you want to run (listed below) and provide any optional/required parameters used by the function.
 
-<img width="589" alt="updated edd help" src="https://user-images.githubusercontent.com/1674822/115320081-61747b00-a13e-11eb-88c0-d947af06e00f.png">
+<img width="589" alt="updated edd help" src="https://user-images.githubusercontent.com/15634696/124296317-0d5f1d00-db17-11eb-9ed2-b8f1dce9f627.png">
+
 
 ## Functions
 
