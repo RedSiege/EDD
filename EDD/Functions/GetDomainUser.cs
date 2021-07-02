@@ -10,10 +10,18 @@ namespace EDD.Functions
 
         public override string[] Execute(ParsedArgs args)
         {
+            List<string> allDomainUsers = new List<string>();
+            Amass userInfo = new Amass();
             if (string.IsNullOrEmpty(args.UserName))
             {
-                Amass userInfo = new Amass();
-                List<string> allDomainUsers = userInfo.GetDomainUsersInfo();
+                if (string.IsNullOrEmpty(args.DomainName))
+                {
+                    allDomainUsers = userInfo.GetDomainUsersInfo();
+                }
+                else
+                {
+                    allDomainUsers = userInfo.GetDomainUsersInfo(args.DomainName);
+                }
                 return allDomainUsers.ToArray();
             }
 

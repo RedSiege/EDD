@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.DirectoryServices;
 using System.Runtime.InteropServices;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
@@ -93,20 +94,73 @@ namespace EDD
             }
         }
 
-        public List<string> GetDomainUsersInfo()
+        public List<string> GetDomainUsersInfo(string domainName = null)
         {
             List<string> domainUsers = new List<string>();
-            PrincipalContext insPrincipalContext = new PrincipalContext(ContextType.Domain);
-            UserPrincipal insUserPrincipal = new UserPrincipal(insPrincipalContext);
-            insUserPrincipal.SamAccountName = "*";
-            PrincipalSearcher insPrincipalSearcher = new PrincipalSearcher();
-            insPrincipalSearcher.QueryFilter = insUserPrincipal;
-            PrincipalSearchResult<Principal> results = insPrincipalSearcher.FindAll();
-            foreach (Principal p in results)
+            Forest currentForest = GetForestObject();
+            if (domainName == null)
             {
-                domainUsers.Add(p.SamAccountName);
+                PrincipalContext insPrincipalContext = new PrincipalContext(ContextType.Domain);
+                UserPrincipal insUserPrincipal = new UserPrincipal(insPrincipalContext);
+                insUserPrincipal.SamAccountName = "*";
+                PrincipalSearcher insPrincipalSearcher = new PrincipalSearcher();
+                insPrincipalSearcher.QueryFilter = insUserPrincipal;
+                PrincipalSearchResult<Principal> results = insPrincipalSearcher.FindAll();
+                foreach (Principal p in results)
+                {
+                    domainUsers.Add(p.SamAccountName);
+                }
             }
+            else
+            {
+                LDAP pathGetter = new LDAP();
+                string ldapQueryBuild = GetCurrentDomainPath();
+                string[] ldap_split = ldapQueryBuild.Split(',');
+                StringComparison stringCompare = StringComparison.CurrentCultureIgnoreCase;
+                string buildDomainName = "";
+                string domaintoUse = "";
+                if (ldapQueryBuild.IndexOf(domainName, stringCompare) >= 0)
+                {
+                    if (ldap_split.Length > 2)
+                    {
+                        if (ldap_split[ldap_split.Length - 2].IndexOf(domainName, stringCompare) >= 0)
+                        {
+                            buildDomainName = ldap_split[ldap_split.Length - 2] + ',' +
+                                              ldap_split[ldap_split.Length - 1];
+                            domaintoUse = currentForest.Name;
+                        }
+                        else
+                        {
+                            buildDomainName = "DC=" + domainName + "," + ldap_split[ldap_split.Length - 2] + ',' + ldap_split[ldap_split.Length - 1];
+                            domaintoUse = domainName + "." + currentForest.Name;
+                        }
+                    }
+                }
+                else
+                {
+                    if (ldap_split.Length > 2)
+                    {
+                        buildDomainName = "DC=" + domainName + "," + ldap_split[ldap_split.Length - 2] + ',' + ldap_split[ldap_split.Length - 1];
+                        domaintoUse = domainName + "." + currentForest.Name;
+                    }
+                    else
+                    {
+                        buildDomainName = ldapQueryBuild.Insert(5, "DC=" + domainName + ",");
+                        domaintoUse = domainName + "." + currentForest.Name;
+                    }
+                }
 
+                PrincipalContext insPrincipalContext = new PrincipalContext(ContextType.Domain, domaintoUse,buildDomainName);
+                UserPrincipal insUserPrincipal = new UserPrincipal(insPrincipalContext);
+                insUserPrincipal.SamAccountName = "*";
+                PrincipalSearcher insPrincipalSearcher = new PrincipalSearcher();
+                insPrincipalSearcher.QueryFilter = insUserPrincipal;
+                PrincipalSearchResult<Principal> results = insPrincipalSearcher.FindAll();
+                foreach (Principal p in results)
+                {
+                    domainUsers.Add(p.SamAccountName);
+                }
+            }
             return domainUsers;
         }
 
@@ -140,6 +194,22 @@ namespace EDD
             return Forest.GetCurrentForest();
         }
 
+        private static string GetCurrentDomainPath()
+        {
+            try
+            {
+                DirectoryEntry de = new DirectoryEntry("LDAP://RootDSE");
+                return de.Properties["defaultNamingContext"][0].ToString();
+            }
+            catch (COMException)
+            {
+                Console.WriteLine("\nError:");
+                Console.WriteLine("Could not contact domain controller, exiting...");
+                Environment.Exit(1);
+            }
+
+            return "";
+        }
         public List<SESSION_INFO_10> GetRemoteSessionInfo(string targetedSystem)
         {
             IntPtr Bufptr;

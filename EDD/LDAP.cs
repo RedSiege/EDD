@@ -191,6 +191,7 @@ namespace EDD
                         modified = ldapQueryBuild.Insert(5, "DC=" + subDomain + ",");
                     }
                 }
+
                 newentry = new DirectoryEntry(modified);
             }
 
