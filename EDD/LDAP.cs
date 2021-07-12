@@ -171,8 +171,8 @@ namespace EDD
                     {
                         if (ldap_split[ldap_split.Length - 2].IndexOf(subDomain, stringCompare) >= 0)
                         {
-                            modified = "LDAP://" + ldap_split[ldap_split.Length - 2] + ',' +
-                                       ldap_split[ldap_split.Length - 1];
+                            //modified = "GC://" + ldap_split[ldap_split.Length - 2] + ',' + ldap_split[ldap_split.Length - 1];
+                            modified = "LDAP://" + ldap_split[ldap_split.Length - 2] + ',' + ldap_split[ldap_split.Length - 1];
                         }
                         else
                         {
