@@ -73,6 +73,7 @@
     <Compile Include="Functions\GetDomainShares.cs" />
     <Compile Include="Functions\GetDomainSid.cs" />
     <Compile Include="Functions\GetDomainUser.cs" />
+    <Compile Include="Functions\GetCurrentDomain.cs" />
     <Compile Include="Functions\GetForest.cs" />
     <Compile Include="Functions\GetForestDomains.cs" />
     <Compile Include="Functions\GetNetLocalGroupMember.cs" />
