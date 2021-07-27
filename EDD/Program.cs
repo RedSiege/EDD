@@ -2,7 +2,6 @@
 using Mono.Options;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,12 +10,9 @@ namespace EDD
 {
     class Program
     {
-        static readonly List<EDDFunction> _functions = new List<EDDFunction>();
-
+        private static readonly List<EDDFunction> _functions = new List<EDDFunction>();
         static void Main(string[] args)
         {
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
             try
             {
                 ParsedArgs parsedArgs = new ParsedArgs();
@@ -100,8 +96,6 @@ namespace EDD
             finally
             {
                 Console.WriteLine("\n[!] EDD is done running!\n");
-                watch.Stop();
-                Console.WriteLine("Execution time: " + watch.ElapsedMilliseconds / 1000 + " Seconds");
             }
         }
 

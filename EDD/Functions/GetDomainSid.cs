@@ -1,4 +1,5 @@
-﻿using EDD.Models;
+﻿using System;
+using EDD.Models;
 
 namespace EDD.Functions
 {
@@ -8,13 +9,20 @@ namespace EDD.Functions
 
         public override string[] Execute(ParsedArgs args)
         {
-            if (string.IsNullOrEmpty(args.DomainName))
-                throw new EDDException("DomainName cannot be empty");
+            try
+            {
+                if (string.IsNullOrEmpty(args.DomainName))
+                    throw new EDDException("DomainName cannot be empty");
 
-            LDAP ldapSIDFinder = new LDAP();
-            string sid = ldapSIDFinder.GetDomainSID(args.DomainName);
+                LDAP ldapSIDFinder = new LDAP();
+                string sid = ldapSIDFinder.GetDomainSID(args.DomainName);
 
-            return new string[] { sid };
+                return new string[] { sid };
+            }
+            catch (Exception e)
+            {
+                return new string[] { "[X] Failure to enumerate info - " + e };
+            }
         }
     }
 }

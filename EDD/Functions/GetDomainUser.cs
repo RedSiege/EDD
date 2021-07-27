@@ -1,4 +1,5 @@
-﻿using EDD.Models;
+﻿using System;
+using EDD.Models;
 
 using System.Collections.Generic;
 
@@ -10,42 +11,49 @@ namespace EDD.Functions
 
         public override string[] Execute(ParsedArgs args)
         {
-            List<string> allDomainUsers = new List<string>();
-            Amass userInfo = new Amass();
-            if (string.IsNullOrEmpty(args.UserName))
+            try
             {
-                if (string.IsNullOrEmpty(args.DomainName))
+                List<string> allDomainUsers = new List<string>();
+                Amass userInfo = new Amass();
+                if (string.IsNullOrEmpty(args.UserName))
                 {
-                    allDomainUsers = userInfo.GetDomainUsersInfo();
+                    if (string.IsNullOrEmpty(args.DomainName))
+                    {
+                        allDomainUsers = userInfo.GetDomainUsersInfo();
+                    }
+                    else
+                    {
+                        allDomainUsers = userInfo.GetDomainUsersInfo(args.DomainName);
+                    }
+                    return allDomainUsers.ToArray();
                 }
-                else
+
+                Amass singleUserInfo = new Amass();
+                UserObject soleUser = singleUserInfo.GetDomainUserInfo(args.UserName);
+
+                List<string> domainUser = new List<string>
                 {
-                    allDomainUsers = userInfo.GetDomainUsersInfo(args.DomainName);
-                }
-                return allDomainUsers.ToArray();
+                    $"SamAccountName: {soleUser.SamAccountName}",
+                    $"Name: {soleUser.Name}",
+                    $"Description: {soleUser.Description}",
+                    $"Distinguished Name: {soleUser.DistinguishedName}",
+                    $"SID: {soleUser.SID}",
+                };
+
+                string groups = "Domain Groups: ";
+
+                foreach (string singleGroupName in soleUser.DomainGroups)
+                    groups += $"{singleGroupName}, ";
+
+                groups = groups.TrimEnd(',', ' ');
+                domainUser.Add(groups);
+
+                return domainUser.ToArray();
             }
-
-            Amass singleUserInfo = new Amass();
-            UserObject soleUser = singleUserInfo.GetDomainUserInfo(args.UserName);
-
-            List<string> domainUser = new List<string>
+            catch (Exception e)
             {
-                $"SamAccountName: {soleUser.SamAccountName}",
-                $"Name: {soleUser.Name}",
-                $"Description: {soleUser.Description}",
-                $"Distinguished Name: {soleUser.DistinguishedName}",
-                $"SID: {soleUser.SID}",
-            };
-
-            string groups = "Domain Groups: ";
-
-            foreach (string singleGroupName in soleUser.DomainGroups)
-                groups += $"{singleGroupName}, ";
-
-            groups = groups.TrimEnd(',', ' ');
-            domainUser.Add(groups);
-
-            return domainUser.ToArray();
+                return new string[] { "[X] Failure to enumerate info - " + e };
+            }
         }
     }
 }

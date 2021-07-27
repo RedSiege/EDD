@@ -1,4 +1,5 @@
-﻿using EDD.Models;
+﻿using System;
+using EDD.Models;
 
 using System.Collections.Generic;
 
@@ -10,18 +11,25 @@ namespace EDD.Functions
 
         public override string[] Execute(ParsedArgs args)
         {
-            List<string> domainControllers = new List<string>();
-            LDAP domainQuery = new LDAP();
-            LDAP findDCs = new LDAP();
-            if (string.IsNullOrEmpty(args.DomainName))
+            try
             {
-                domainControllers = findDCs.CaptureDomainControllers();
+                List<string> domainControllers = new List<string>();
+                LDAP domainQuery = new LDAP();
+                LDAP findDCs = new LDAP();
+                if (string.IsNullOrEmpty(args.DomainName))
+                {
+                    domainControllers = findDCs.CaptureDomainControllers();
+                }
+                else
+                {
+                    domainControllers = findDCs.CaptureDomainControllers(args.DomainName);
+                }
+                return domainControllers.ToArray();
             }
-            else
+            catch (Exception e)
             {
-                domainControllers = findDCs.CaptureDomainControllers(args.DomainName);
+                return new string[] { "[X] Failure to enumerate info - " + e };
             }
-            return domainControllers.ToArray();
         }
     }
 }

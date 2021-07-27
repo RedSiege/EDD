@@ -14,60 +14,68 @@ namespace EDD.Functions
 
         public override string[] Execute(ParsedArgs args)
         {
-            LDAP computerQuery = new LDAP();
-            List<string> interestingFiles = new List<string>();
-            List<Regex> regexList = new List<Regex>();
-            string[] allShares = new string[1];
-
-            if (string.IsNullOrEmpty(args.SharePath))
+            try
             {
-                List<string> domainSystems = computerQuery.CaptureComputers();
-                Amass shareMe = new Amass();
-                allShares = shareMe.GetShares(domainSystems, args.Threads);
-            }
-            else
-            {
-                allShares[0] = args.SharePath;
-            }
+                LDAP computerQuery = new LDAP();
+                List<string> interestingFiles = new List<string>();
+                List<Regex> regexList = new List<Regex>();
+                string[] allShares = new string[1];
 
-
-            // We need to convert the given wildcard string to regex and account for multiple strings
-            foreach (var term in args.SearchTerms)
-            {
-                if (term.Contains("*"))
+                if (string.IsNullOrEmpty(args.SharePath))
                 {
-                    string regexText = WildcardToRegex(term);
-                    Regex regex = new Regex(regexText, RegexOptions.IgnoreCase);
-                    regexList.Add(regex);
+                    List<string> domainSystems = computerQuery.CaptureComputers();
+                    Amass shareMe = new Amass();
+                    allShares = shareMe.GetShares(domainSystems, args.Threads);
                 }
                 else
                 {
-                    Regex regex = new Regex(term, RegexOptions.IgnoreCase);
-                    regexList.Add(regex);
+                    allShares[0] = args.SharePath;
                 }
-            }
 
-            // Pipe multiple search strings together into one regex string
-            var regexString = regexList.Count() > 1 ? string.Join("|", regexList) : regexList[0].ToString();
 
-            if (allShares != null)
-                foreach (var share in allShares)
+                // We need to convert the given wildcard string to regex and account for multiple strings
+                foreach (var term in args.SearchTerms)
                 {
-                    try
+                    if (term.Contains("*"))
                     {
-                        Parallel.ForEach(GetFiles(share), file =>
-                        {
-                            if (Regex.IsMatch(file, regexString, RegexOptions.IgnoreCase))
-                                interestingFiles.Add(file);
-                        });
+                        string regexText = WildcardToRegex(term);
+                        Regex regex = new Regex(regexText, RegexOptions.IgnoreCase);
+                        regexList.Add(regex);
                     }
-                    catch (UnauthorizedAccessException)
+                    else
                     {
-                        //Do nothing
+                        Regex regex = new Regex(term, RegexOptions.IgnoreCase);
+                        regexList.Add(regex);
                     }
                 }
 
-            return interestingFiles.ToArray();
+                // Pipe multiple search strings together into one regex string
+                var regexString = regexList.Count() > 1 ? string.Join("|", regexList) : regexList[0].ToString();
+
+                if (allShares != null)
+                    foreach (var share in allShares)
+                    {
+                        try
+                        {
+                            Parallel.ForEach(GetFiles(share), file =>
+                            {
+                                if (Regex.IsMatch(file, regexString, RegexOptions.IgnoreCase))
+                                    interestingFiles.Add(file);
+                            });
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            //Do nothing
+                        }
+                    }
+
+                return interestingFiles.ToArray();
+            }
+            catch (Exception e)
+            {
+                return new string[] { "[X] Failure to enumerate info - " + e };
+            }
+            
         }
 
         // Borrowed from SO - https://stackoverflow.com/a/929418

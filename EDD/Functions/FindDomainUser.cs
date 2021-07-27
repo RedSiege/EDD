@@ -11,102 +11,126 @@ namespace EDD.Functions
 
         public override string[] Execute(ParsedArgs args)
         {
-            if (!string.IsNullOrEmpty(args.GroupName) && !string.IsNullOrEmpty(args.UserName))
-                throw new EDDException("Please use GroupName or UserName, not both");
+            try
+            {
+                if (!string.IsNullOrEmpty(args.GroupName) && !string.IsNullOrEmpty(args.UserName))
+                    throw new EDDException("Please use GroupName or UserName, not both");
 
-            LDAP compQuery = new LDAP();
+                LDAP compQuery = new LDAP();
 
-            List<string> windowsComputers = compQuery.CaptureComputers();
+                List<string> windowsComputers = compQuery.CaptureComputers();
 
-            if (windowsComputers.Count < 1)
-                throw new EDDException("No domain computers could be found");
+                if (windowsComputers.Count < 1)
+                    throw new EDDException("No domain computers could be found");
 
-            string[] results = new string[] { };
+                string[] results = new string[] { };
 
-            // if group and user is null, search for domain admins
-            if (string.IsNullOrEmpty(args.GroupName) && string.IsNullOrEmpty(args.UserName))
-                results = FindMembersOfGroup(windowsComputers, "Domain Admins");
+                // if group and user is null, search for domain admins
+                if (string.IsNullOrEmpty(args.GroupName) && string.IsNullOrEmpty(args.UserName))
+                    results = FindMembersOfGroup(windowsComputers, "Domain Admins");
 
-            // if group is not null and user is null, search for group
-            if (!string.IsNullOrEmpty(args.GroupName) && string.IsNullOrEmpty(args.UserName))
-                results = FindMembersOfGroup(windowsComputers, args.GroupName);
+                // if group is not null and user is null, search for group
+                if (!string.IsNullOrEmpty(args.GroupName) && string.IsNullOrEmpty(args.UserName))
+                    results = FindMembersOfGroup(windowsComputers, args.GroupName);
 
-            // if group is null and user is not null, search for user
-            if (string.IsNullOrEmpty(args.GroupName) && !string.IsNullOrEmpty(args.UserName))
-                results = FindUser(windowsComputers, args.UserName);
+                // if group is null and user is not null, search for user
+                if (string.IsNullOrEmpty(args.GroupName) && !string.IsNullOrEmpty(args.UserName))
+                    results = FindUser(windowsComputers, args.UserName);
 
-            return results;
+                return results;
+            }
+            catch (Exception e)
+            {
+                return new string[] { "[X] Failure to enumerate info - " + e };
+            }
+            
         }
 
         string[] FindMembersOfGroup(List<string> computers, string groupName)
         {
-            List<string> results = new List<string>();
-
-            Amass findUser = new Amass();
-            List<string> groupList = findUser.GetDomainGroupMembers(groupName);
-
-            foreach (string computerHostName in computers)
+            try
             {
-                List<Amass.WKSTA_USER_INFO_1> currentLoggedInAccounts = findUser.GetLoggedOnUsers(computerHostName);
+                List<string> results = new List<string>();
 
-                foreach (string actualUser in groupList)
+                Amass findUser = new Amass();
+                List<string> groupList = findUser.GetDomainGroupMembers(groupName);
+
+                foreach (string computerHostName in computers)
                 {
-                    foreach (Amass.WKSTA_USER_INFO_1 loggedInHere in currentLoggedInAccounts)
+                    List<Amass.WKSTA_USER_INFO_1> currentLoggedInAccounts = findUser.GetLoggedOnUsers(computerHostName);
+
+                    foreach (string actualUser in groupList)
                     {
-                        if (String.Equals(loggedInHere.wkui1_username, actualUser, StringComparison.OrdinalIgnoreCase))
+                        foreach (Amass.WKSTA_USER_INFO_1 loggedInHere in currentLoggedInAccounts)
                         {
-                            results.Add($"{loggedInHere.wkui1_username} is currently logged into {computerHostName}");
+                            if (String.Equals(loggedInHere.wkui1_username, actualUser, StringComparison.OrdinalIgnoreCase))
+                            {
+                                results.Add($"{loggedInHere.wkui1_username} is currently logged into {computerHostName}");
+                            }
+                        }
+                    }
+
+                    List<Amass.SESSION_INFO_10> currentSessionInfo = findUser.GetRemoteSessionInfo(computerHostName);
+
+                    foreach (string actualDAAgain in groupList)
+                    {
+                        foreach (Amass.SESSION_INFO_10 sessInformation in currentSessionInfo)
+                        {
+                            if (String.Equals(sessInformation.sesi10_username, actualDAAgain, StringComparison.OrdinalIgnoreCase))
+                            {
+                                results.Add($"{sessInformation.sesi10_username} has a session on {computerHostName}");
+                            }
                         }
                     }
                 }
 
-                List<Amass.SESSION_INFO_10> currentSessionInfo = findUser.GetRemoteSessionInfo(computerHostName);
+                return results.ToArray();
+            }
+            catch (Exception e)
+            {
+                return new string[] { "[X] Failure to enumerate info - " + e };
+            }
+            
+        }
 
-                foreach (string actualDAAgain in groupList)
+        string[] FindUser(List<string> computers, string username)
+        {
+            try
+            {
+                List<string> results = new List<string>();
+
+                Amass findUser = new Amass();
+
+                foreach (string computerHostName in computers)
                 {
+                    List<Amass.WKSTA_USER_INFO_1> currentLoggedInAccounts = findUser.GetLoggedOnUsers(computerHostName);
+
+                    foreach (Amass.WKSTA_USER_INFO_1 loggedInHere in currentLoggedInAccounts)
+                    {
+                        if (String.Equals(loggedInHere.wkui1_username, username, StringComparison.OrdinalIgnoreCase))
+                        {
+                            results.Add($"{loggedInHere.wkui1_username} is currently logged into {computerHostName}");
+                        }
+                    }
+
+                    List<Amass.SESSION_INFO_10> currentSessionInfo = findUser.GetRemoteSessionInfo(computerHostName);
+
                     foreach (Amass.SESSION_INFO_10 sessInformation in currentSessionInfo)
                     {
-                        if (String.Equals(sessInformation.sesi10_username, actualDAAgain, StringComparison.OrdinalIgnoreCase))
+                        if (String.Equals(sessInformation.sesi10_username, username, StringComparison.OrdinalIgnoreCase))
                         {
                             results.Add($"{sessInformation.sesi10_username} has a session on {computerHostName}");
                         }
                     }
                 }
+
+                return results.ToArray();
             }
-
-            return results.ToArray();
-        }
-
-        string[] FindUser(List<string> computers, string username)
-        {
-            List<string> results = new List<string>();
-
-            Amass findUser = new Amass();
-
-            foreach (string computerHostName in computers)
+            catch (Exception e)
             {
-                List<Amass.WKSTA_USER_INFO_1> currentLoggedInAccounts = findUser.GetLoggedOnUsers(computerHostName);
-
-                foreach (Amass.WKSTA_USER_INFO_1 loggedInHere in currentLoggedInAccounts)
-                {
-                    if (String.Equals(loggedInHere.wkui1_username, username, StringComparison.OrdinalIgnoreCase))
-                    {
-                        results.Add($"{loggedInHere.wkui1_username} is currently logged into {computerHostName}");
-                    }
-                }
-
-                List<Amass.SESSION_INFO_10> currentSessionInfo = findUser.GetRemoteSessionInfo(computerHostName);
-
-                foreach (Amass.SESSION_INFO_10 sessInformation in currentSessionInfo)
-                {
-                    if (String.Equals(sessInformation.sesi10_username, username, StringComparison.OrdinalIgnoreCase))
-                    {
-                        results.Add($"{sessInformation.sesi10_username} has a session on {computerHostName}");
-                    }
-                }
+                return new string[] { "[X] Failure to enumerate info - " + e };
             }
-
-            return results.ToArray();
+            
         }
     }
 }
