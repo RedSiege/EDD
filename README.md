@@ -17,6 +17,7 @@ The following functions can be used with the -f flag to specify the data you wan
 	getforest - returns the name of the current forest
 	getforestdomains - returns the name of all domains in the current forest
 	convertsidtoname - Converts a SID to the corresponding group or domain name (use the -u option for providing the SID value)
+	getadcsservers - Get a list of servers running AD CS within the current domain
 
 ### Computer Information
 	getdomaincomputers - Get a list of all computers in the domain
