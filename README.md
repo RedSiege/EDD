@@ -36,6 +36,7 @@ The following functions can be used with the -f flag to specify the data you wan
 	finddomainprocess - Search for a specific process across all systems in the domain (requires admin access on remote systems)
 	finddomainuser - Searches the domain environment for a specified user or group and tries to find active sessions (default searches for Domain Admins)
 	findinterestingdomainsharefile - Searches the domain environment for all accessible shares. Once found, it parses all filenames for "interesting" strings
+	findwritableshares - Enumerates all shares in the domain and then checks to see if the current account can create a text file in the root level share, and one level deep.
 
 
 ## References

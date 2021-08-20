@@ -74,6 +74,7 @@
     <Compile Include="Functions\FindDomainProcess.cs" />
     <Compile Include="Functions\FindDomainUser.cs" />
     <Compile Include="Functions\FindInterestingFiles.cs" />
+    <Compile Include="Functions\FindWritableShares.cs" />
     <Compile Include="Functions\GetADCSServers.cs" />
     <Compile Include="Functions\GetDomainComputers.cs" />
     <Compile Include="Functions\GetDomainControllers.cs" />
