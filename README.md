@@ -22,7 +22,8 @@ The following functions can be used with the -f flag to specify the data you wan
 ### Computer Information
 	getdomaincomputers - Get a list of all computers in the domain
 	getdomaincontrollers - Gets a list of all domain controllers
-	getdomainshares - Get a list of all accessible domain shares
+	getdomainshares - Get a list of all domain shares
+	getreadabledomainshares - Get a list of all readable domain shares
 
 ### User Information
 	getnetlocalgroupmember - Returns a list of all users in a local group on a remote system

@@ -81,6 +81,7 @@
     <Compile Include="Functions\GetDomainGroupMember.cs" />
     <Compile Include="Functions\GetDomainGroupSid.cs" />
     <Compile Include="Functions\GetDomainShares.cs" />
+    <Compile Include="Functions\GetReadableDomainShares.cs" />
     <Compile Include="Functions\GetDomainSid.cs" />
     <Compile Include="Functions\GetDomainUser.cs" />
     <Compile Include="Functions\GetCurrentDomain.cs" />
