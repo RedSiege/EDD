@@ -27,9 +27,13 @@ namespace EDD.Functions
                         string[] subdirectoryEntries = Directory.GetDirectories(shareDir);
                         readableShares.Add(shareDir);
                     }
-                    catch(UnauthorizedAccessException)
+                    catch (UnauthorizedAccessException)
                     {
                         // do nothing
+                    }
+                    catch (IOException)
+                    {
+                        // do nothing either
                     }
                     
                 }
@@ -38,6 +42,12 @@ namespace EDD.Functions
             }
             catch (Exception e)
             {
+                foreach (string path in readableShares)
+                {
+                    Console.WriteLine(path);
+                }
+
+                Console.WriteLine("[X] ERROR State Occurred - Paths above are current status prior to error!");
                 return new string[] { "[X] Failure to enumerate info - " + e };
             }
         }
