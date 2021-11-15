@@ -96,6 +96,12 @@ namespace EDD.Functions
             }
             catch (Exception e)
             {
+                foreach (string path in successfulShareWrites)
+                {
+                    Console.WriteLine(path);
+                }
+
+                Console.WriteLine("[X] ERROR State Occurred - Paths above are current status prior to error!");
                 return new string[] {"[X] Failure to enumerate info - " + e};
             }
         }
