@@ -12,14 +12,13 @@ namespace EDD.Functions
 
         public override string[] Execute(ParsedArgs args)
         {
+            List<string> successfulShareWrites = new List<string>();
             try
             {
                 LDAP computerQuery = new LDAP();
                 List<string> domainSystems = computerQuery.CaptureComputers();
                 Amass shareMe = new Amass();
                 string[] allShares = shareMe.GetShares(domainSystems, args.Threads);
-
-                List<string> successfulShareWrites = new List<string>();
 
                 foreach (string sharePath in allShares)
                 {
