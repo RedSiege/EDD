@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="Amass.cs" />
     <Compile Include="Functions\FindAdminSCH.cs" />
+    <Compile Include="Functions\FindAdminWMI.cs" />
     <Compile Include="Functions\FindDomainProcess.cs" />
     <Compile Include="Functions\FindDomainUser.cs" />
     <Compile Include="Functions\FindInterestingFiles.cs" />
