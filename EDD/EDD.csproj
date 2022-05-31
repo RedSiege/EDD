@@ -9,11 +9,12 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>EDD</RootNamespace>
     <AssemblyName>EDD</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -75,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Amass.cs" />
+    <Compile Include="Functions\GetDomainDescription.cs" />
     <Compile Include="Functions\FindAdminSCH.cs" />
     <Compile Include="Functions\FindAdminWMI.cs" />
     <Compile Include="Functions\FindDomainProcess.cs" />
