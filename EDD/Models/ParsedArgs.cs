@@ -11,6 +11,7 @@ namespace EDD.Models
         public string DomainName { get; set; }
         public string SharePath { get; set; }
         public int Threads { get; set; }
+        public string ldapQuery { get; set; }
         public string[] SearchTerms { get; set; }
 
         public ParsedArgs()

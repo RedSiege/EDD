@@ -14,6 +14,7 @@
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -75,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Amass.cs" />
+    <Compile Include="Functions\GetDomainDescription.cs" />
     <Compile Include="Functions\FindAdminSCH.cs" />
     <Compile Include="Functions\FindAdminWMI.cs" />
     <Compile Include="Functions\FindDomainProcess.cs" />
@@ -98,6 +100,7 @@
     <Compile Include="Functions\GetNetSession.cs" />
     <Compile Include="Functions\GetUsersWithSpns.cs" />
     <Compile Include="Functions\MyNewEDDFunction.cs" />
+    <Compile Include="Models\Data.cs" />
     <Compile Include="Models\EDDException.cs" />
     <Compile Include="Models\EDDFunction.cs" />
     <Compile Include="Functions\ConvertSidToName.cs" />

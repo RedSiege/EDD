@@ -152,7 +152,7 @@ namespace EDD
             return usersWithSPNs;
         }
 
-        private static SearchResultCollection CustomSearchLDAP(string ldap_query, string[] optional_params = null, string subDomain = null)
+        public static SearchResultCollection CustomSearchLDAP(string ldap_query, string[] optional_params = null, string subDomain = null)
         {
             DirectoryEntry newentry;
             string modified = "";
