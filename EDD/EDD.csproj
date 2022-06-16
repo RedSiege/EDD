@@ -98,12 +98,12 @@
     <Compile Include="Functions\GetNetLocalGroupMember.cs" />
     <Compile Include="Functions\GetNetLoggedOn.cs" />
     <Compile Include="Functions\GetNetSession.cs" />
+    <Compile Include="Functions\GetSidData.cs" />
     <Compile Include="Functions\GetUsersWithSpns.cs" />
     <Compile Include="Functions\MyNewEDDFunction.cs" />
     <Compile Include="Models\Data.cs" />
     <Compile Include="Models\EDDException.cs" />
     <Compile Include="Models\EDDFunction.cs" />
-    <Compile Include="Functions\ConvertSidToName.cs" />
     <Compile Include="LDAP.cs" />
     <Compile Include="Models\ParsedArgs.cs" />
     <Compile Include="Program.cs" />
