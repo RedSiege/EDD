@@ -23,16 +23,17 @@ namespace EDD
 
                 var p = new OptionSet()
                 {
-                    {"f|function=", "the function you want to use", (v) => functionName = v}, 
+                    {"f|function=", "the function you want to use", (v) => functionName = v},
                     {"o|output=", "the path to the file to save", (v) => fileSavePath = v},
                     {"c|computername=", "the computer you are targeting", (v) => parsedArgs.ComputerName = v},
                     {"d|domainname=", "the computer you are targeting", (v) => parsedArgs.DomainName = v},
                     {"g|groupname=", "the domain group you are targeting", (v) => parsedArgs.GroupName = v},
                     {"p|processname=", "the process you are targeting", (v) => parsedArgs.ProcessName = v},
+                    {"w|password=", "the password to authenticate with or what you are setting it to", (v) => parsedArgs.Password = v},
                     {"u|username=", "the domain account you are targeting", (v) => parsedArgs.UserName = v},
                     {"t|threads=", "the number of threads to run (default: 5)", (int t) => parsedArgs.Threads = t},
                     {"q|query=", "custom LDAP filter to search", (v) => parsedArgs.ldapQuery = v},
-                    {"s|search=", "the search term(s) for FindInterestingDomainShareFile separated by a comma (,), accepts wildcards", 
+                    {"s|search=", "the search term(s) for FindInterestingDomainShareFile separated by a comma (,), accepts wildcards",
                         (string s) => parsedArgs.SearchTerms = s?.Split(',')},
                     {"sharepath=", "the specific share to search for interesting files", (v) => parsedArgs.SharePath = v},
                     {"h|help", "show this message and exit", v => show_help = v != null}

@@ -26,12 +26,14 @@ The following functions can be used with the -f flag to specify the data you wan
 	getreadabledomainshares - Get a list of all readable domain shares
 
 ### User Information
+	changeaccountpassword - change the password for a targeted account
 	getnetlocalgroupmember - Returns a list of all users in a local group on a remote system
 	getdomaingroupmember - Returns a list of all users in a domain group
 	getdomainuser - Retrieves info about specific user (name, description, SID, Domain Groups)
 	getnetsession - Returns a list of accounts with sessions on the targeted system
 	getnetloggedon - Returns a list of accounts logged into the targeted system
 	getuserswithspns - Returns a list of all domain accounts that have a SPN associated with them
+	joingroupbysid - Join an account to a group via the group's sid
 
 ### Chained Information
 	findadminsch - Uses the task scheduler to query for admin rights within a domain
