@@ -17,7 +17,7 @@ namespace EDD.Functions
         {
 
             string CN = args.CanonicalName.Replace('.', ' ');
-            string[] ADRights = Data.ADRights;
+            string[] ADRights = args.ADRights.Split(',');
             bool AllRights = false;
 
             Data.ControlType ct = Data.ControlType.Inactive;

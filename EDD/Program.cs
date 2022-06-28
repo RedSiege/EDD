@@ -35,6 +35,7 @@ namespace EDD
                     {"u|username=", "the domain account you are targeting", (v) => parsedArgs.UserName = v},
                     {"t|threads=", "the number of threads to run (default: 5)", (int t) => parsedArgs.Threads = t},
                     {"q|query=", "custom LDAP filter to search", (v) => parsedArgs.ldapQuery = v},
+                    {"a|adright=", "Active Directory Rights to return, separated by commas", (v) => parsedArgs.ADRights = v},
                     {"s|search=", "the search term(s) for FindInterestingDomainShareFile separated by a comma (,), accepts wildcards",
                         (string s) => parsedArgs.SearchTerms = s?.Split(',')},
                     {"sharepath=", "the specific share to search for interesting files", (v) => parsedArgs.SharePath = v},

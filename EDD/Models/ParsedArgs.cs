@@ -4,6 +4,7 @@ namespace EDD.Models
 {
     public class ParsedArgs
     {
+        public string ADRights { get; set; }
         public string GroupName { get; set; }
         public string ComputerName { get; set; }
         public string ProcessName { get; set; }
