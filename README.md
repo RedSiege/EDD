@@ -6,22 +6,23 @@ Enumerate Domain Data is designed to be similar to PowerView but in .NET. PowerV
 To use EDD, you just need to call the application, provide the function that you want to run (listed below) and provide any optional/required parameters used by the function.
 
 Arguments:
-  -f, --function=VALUE       the function you want to use
-  -o, --output=VALUE         the path to the file to save
-  -c, --computername=VALUE   the computer you are targeting
-  -d, --domainname=VALUE     the computer you are targeting
-  -g, --groupname=VALUE      the domain group you are targeting
-  -p, --processname=VALUE    the process you are targeting
-  -w, --password=VALUE       the password to authenticate with or what you are
-                               setting it to
-  -u, --username=VALUE       the domain account you are targeting
-  -t, --threads=VALUE        the number of threads to run (default: 5)
-  -q, --query=VALUE          custom LDAP filter to search
-  -s, --search=VALUE         the search term(s) for
-                               FindInterestingDomainShareFile separated by a
-                               comma (,), accepts wildcards
-      --sharepath=VALUE      the specific share to search for interesting files
-  -h, --help                 show this message and exit
+
+	-f, --function=VALUE       the function you want to use
+	-o, --output=VALUE         the path to the file to save
+	-c, --computername=VALUE   the computer you are targeting
+	-d, --domainname=VALUE     the computer you are targeting
+	-g, --groupname=VALUE      the domain group you are targeting
+	-p, --processname=VALUE    the process you are targeting
+	-w, --password=VALUE       the password to authenticate with or what you are
+	                             setting it to
+	-u, --username=VALUE       the domain account you are targeting
+	-t, --threads=VALUE        the number of threads to run (default: 5)
+	-q, --query=VALUE          custom LDAP filter to search
+	-s, --search=VALUE         the search term(s) for
+	                             FindInterestingDomainShareFile separated by a
+	                             comma (,), accepts wildcards
+	--sharepath=VALUE      the specific share to search for interesting files
+	-h, --help                 show this message and exit
 
 
 ## Functions
