@@ -20,12 +20,14 @@ namespace EDD
                 string functionName = null;
                 string fileSavePath = null;
                 bool show_help = false;
+                bool list_functions = false;
 
                 var p = new OptionSet()
                 {
                     {"f|function=", "the function you want to use", (v) => functionName = v},
                     {"o|output=", "the path to the file to save", (v) => fileSavePath = v},
                     {"c|computername=", "the computer you are targeting", (v) => parsedArgs.ComputerName = v},
+                    {"n|canonicalname=", "canonical name for domain user", (v) => parsedArgs.CanonicalName = v},
                     {"d|domainname=", "the computer you are targeting", (v) => parsedArgs.DomainName = v},
                     {"g|groupname=", "the domain group you are targeting", (v) => parsedArgs.GroupName = v},
                     {"p|processname=", "the process you are targeting", (v) => parsedArgs.ProcessName = v},
@@ -33,9 +35,11 @@ namespace EDD
                     {"u|username=", "the domain account you are targeting", (v) => parsedArgs.UserName = v},
                     {"t|threads=", "the number of threads to run (default: 5)", (int t) => parsedArgs.Threads = t},
                     {"q|query=", "custom LDAP filter to search", (v) => parsedArgs.ldapQuery = v},
+                    {"a|adright=", "Active Directory Rights to return, separated by commas", (v) => parsedArgs.ADRights = v},
                     {"s|search=", "the search term(s) for FindInterestingDomainShareFile separated by a comma (,), accepts wildcards",
                         (string s) => parsedArgs.SearchTerms = s?.Split(',')},
                     {"sharepath=", "the specific share to search for interesting files", (v) => parsedArgs.SharePath = v},
+                    {"l|listfunctions", "list EDD functions available", v => list_functions = v != null},
                     {"h|help", "show this message and exit", v => show_help = v != null}
                 };
 
@@ -110,6 +114,16 @@ namespace EDD
             Console.WriteLine("Arguments:");
             p.WriteOptionDescriptions(Console.Out);
         }
+
+        static void FunctionReturn()
+        {
+            Console.WriteLine("EDD functions:");
+            foreach (EDDFunction function in _functions)
+            {
+                Console.WriteLine($"{function.FunctionName}");
+            }
+        }
+
 
         static void InitFunctions()
         {
