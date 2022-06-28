@@ -101,6 +101,7 @@
     <Compile Include="Functions\GetNetSession.cs" />
     <Compile Include="Functions\GetSidData.cs" />
     <Compile Include="Functions\GetUsersWithSpns.cs" />
+    <Compile Include="Functions\JoinGroupByName.cs" />
     <Compile Include="Functions\JoinGroupBySid.cs" />
     <Compile Include="Functions\MyNewEDDFunction.cs" />
     <Compile Include="Models\Data.cs" />

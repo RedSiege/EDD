@@ -5,7 +5,23 @@ Enumerate Domain Data is designed to be similar to PowerView but in .NET. PowerV
 
 To use EDD, you just need to call the application, provide the function that you want to run (listed below) and provide any optional/required parameters used by the function.
 
-<img width="589" alt="updated edd help" src="https://user-images.githubusercontent.com/15634696/124296317-0d5f1d00-db17-11eb-9ed2-b8f1dce9f627.png">
+Arguments:
+  -f, --function=VALUE       the function you want to use
+  -o, --output=VALUE         the path to the file to save
+  -c, --computername=VALUE   the computer you are targeting
+  -d, --domainname=VALUE     the computer you are targeting
+  -g, --groupname=VALUE      the domain group you are targeting
+  -p, --processname=VALUE    the process you are targeting
+  -w, --password=VALUE       the password to authenticate with or what you are
+                               setting it to
+  -u, --username=VALUE       the domain account you are targeting
+  -t, --threads=VALUE        the number of threads to run (default: 5)
+  -q, --query=VALUE          custom LDAP filter to search
+  -s, --search=VALUE         the search term(s) for
+                               FindInterestingDomainShareFile separated by a
+                               comma (,), accepts wildcards
+      --sharepath=VALUE      the specific share to search for interesting files
+  -h, --help                 show this message and exit
 
 
 ## Functions
@@ -34,6 +50,7 @@ The following functions can be used with the -f flag to specify the data you wan
 	getnetloggedon - Returns a list of accounts logged into the targeted system
 	getuserswithspns - Returns a list of all domain accounts that have a SPN associated with them
 	joingroupbysid - Join an account to a group via the group's sid
+	joingroupbyname - Join an account to a group via the group's name
 
 ### Chained Information
 	findadminsch - Uses the task scheduler to query for admin rights within a domain
