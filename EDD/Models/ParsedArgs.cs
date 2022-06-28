@@ -9,6 +9,7 @@ namespace EDD.Models
         public string ProcessName { get; set; }
         public string Password { get; set; }
         public string UserName { get; set; }
+        public string CanonicalName { get; set; }
         public string DomainName { get; set; }
         public string SharePath { get; set; }
         public int Threads { get; set; }
