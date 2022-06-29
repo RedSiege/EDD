@@ -10,18 +10,22 @@ Arguments:
 	-f, --function=VALUE       the function you want to use
 	-o, --output=VALUE         the path to the file to save
 	-c, --computername=VALUE   the computer you are targeting
+	-n, --canonicalname=VALUE  canonical name for domain user
 	-d, --domainname=VALUE     the computer you are targeting
 	-g, --groupname=VALUE      the domain group you are targeting
 	-p, --processname=VALUE    the process you are targeting
 	-w, --password=VALUE       the password to authenticate with or what you are
-	                             setting it to
+	                           setting it to
 	-u, --username=VALUE       the domain account you are targeting
 	-t, --threads=VALUE        the number of threads to run (default: 5)
 	-q, --query=VALUE          custom LDAP filter to search
+	-a, --adright=VALUE        Active Directory Rights to return, separated by
+	                           commas
 	-s, --search=VALUE         the search term(s) for
-	                             FindInterestingDomainShareFile separated by a
-	                             comma (,), accepts wildcards
-	--sharepath=VALUE      the specific share to search for interesting files
+	                           FindInterestingDomainShareFile separated by a
+	                           comma (,), accepts wildcards
+	  --sharepath=VALUE      the specific share to search for interesting files
+	-l, --listfunctions        list EDD functions available
 	-h, --help                 show this message and exit
 
 
