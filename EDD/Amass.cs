@@ -67,11 +67,9 @@ namespace EDD
             // if you found it - get its members
             if (myGroup != null)
             {
-                // if your call the GetMembers, you can optionally specify a "Recursive" flag - done here
-                var allMembers = myGroup.GetMembers(true);
-                foreach (var groupMember in allMembers)
+                foreach(Principal groupMember in myGroup.GetMembers())
                 {
-                    domainGroupMembers.Add(groupMember.ToString());
+                    domainGroupMembers.Add(groupMember.SamAccountName);
                 }
             }
 
