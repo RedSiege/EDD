@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "FindDomainProcess";
 
+        public override string FunctionDesc => "Search for a specific process across all systems in the domain (requires admin access on remote systems)";
+
+        public override string FunctionUsage => "EDD.exe -f FindDomainProcess -p [proc name]";
+
         public override string[] Execute(ParsedArgs args)
         {
             try
@@ -27,7 +31,7 @@ namespace EDD.Functions
             {
                 return new string[] { "[X] Failure to enumerate info - " + e };
             }
-            
+
         }
     }
 }

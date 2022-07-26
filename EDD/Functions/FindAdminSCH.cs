@@ -12,6 +12,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "FindAdminSCH";
 
+        public override string FunctionDesc => "Set arbitrary LDAP filter to search for objects";
+
+        public override string FunctionUsage => "EDD.exe -f FindAdminSCH";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

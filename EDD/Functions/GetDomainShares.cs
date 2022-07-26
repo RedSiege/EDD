@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetDomainShares";
 
+        public override string FunctionDesc => "Get a list of all domain shares";
+
+        public override string FunctionUsage => "EDD.exe -f GetDomainShares -t <threads>";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

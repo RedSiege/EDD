@@ -12,6 +12,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetADCSServers";
 
+        public override string FunctionDesc => "Get a list of servers running AD CS within the current domain";
+
+        public override string FunctionUsage => "EDD.exe -f GetADCSServers";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

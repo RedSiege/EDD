@@ -7,7 +7,11 @@ namespace EDD.Functions
 {
     internal class CustomLDAPQuery : EDDFunction
     {
-        public override string FunctionName => "Query";
+        public override string FunctionName => "CustomLDAPQuery";
+
+        public override string FunctionDesc => "Set arbitrary LDAP filter to search for objects";
+
+        public override string FunctionUsage => "EDD.exe -f CustomLDAPQuery -q [LDAP query]";
 
         public override string[] Execute(ParsedArgs args)
         {

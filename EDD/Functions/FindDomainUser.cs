@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "FindDomainUser";
 
+        public override string FunctionDesc => "Searches the domain environment for a specified user or group and tries to find active sessions (default searches for Domain Admins)";
+
+        public override string FunctionUsage => "EDD.exe -f FindDomainUser -u <username> -g <group name>";
+
         public override string[] Execute(ParsedArgs args)
         {
             try
@@ -43,7 +47,7 @@ namespace EDD.Functions
             {
                 return new string[] { "[X] Failure to enumerate info - " + e };
             }
-            
+
         }
 
         string[] FindMembersOfGroup(List<string> computers, string groupName)
@@ -90,7 +94,7 @@ namespace EDD.Functions
             {
                 return new string[] { "[X] Failure to enumerate info - " + e };
             }
-            
+
         }
 
         string[] FindUser(List<string> computers, string username)
@@ -130,7 +134,7 @@ namespace EDD.Functions
             {
                 return new string[] { "[X] Failure to enumerate info - " + e };
             }
-            
+
         }
     }
 }

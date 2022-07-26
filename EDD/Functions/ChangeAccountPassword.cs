@@ -10,16 +10,20 @@ namespace EDD.Functions
     {
         public override string FunctionName => "ChangeAccountPassword";
 
+        public override string FunctionDesc => "Change the password for a targeted account";
+
+        public override string FunctionUsage => "EDD.exe -f ChangeAccountPassword -u [username] -p [password]";
+
         public override string[] Execute(ParsedArgs args)
         {
             if (args.UserName == null)
             {
-                return new string[] {"You need to provide a username to change their password"};
+                return new string[] { "You need to provide a username to change their password" };
             }
 
             if (args.Password == null)
             {
-                return new string[] {"You need to provide the password that you are setting"};
+                return new string[] { "You need to provide the password that you are setting" };
             }
 
             try
@@ -33,7 +37,7 @@ namespace EDD.Functions
                     }
                 }
 
-                return new string[] {"Successfully changed password"};
+                return new string[] { "Successfully changed password" };
             }
             catch (Exception e)
             {

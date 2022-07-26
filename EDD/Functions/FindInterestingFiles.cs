@@ -12,6 +12,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "FindInterestingDomainShareFile";
 
+        public override string FunctionDesc => "Searches the domain environment for all accessible shares. Once found, it parses all filenames for \"interesting\" strings";
+
+        public override string FunctionUsage => "EDD.exe -f FindInterestingDomainShareFile --sharepath=[share path] -t <threads> -s <search terms>";
+
         public override string[] Execute(ParsedArgs args)
         {
             try
@@ -75,7 +79,7 @@ namespace EDD.Functions
             {
                 return new string[] { "[X] Failure to enumerate info - " + e };
             }
-            
+
         }
 
         // Borrowed from SO - https://stackoverflow.com/a/929418

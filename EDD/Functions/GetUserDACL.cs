@@ -13,6 +13,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetUserDACL";
 
+        public override string FunctionDesc => "Returns DACL of a specified domain object";
+
+        public override string FunctionUsage => "EDD.exe -f getUserDACL -n [canonical name] -a <ADRights>";
+
         public override string[] Execute(ParsedArgs args)
         {
 
