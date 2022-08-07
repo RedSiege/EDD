@@ -55,7 +55,7 @@ The following functions can be used with the -f flag to specify the data you wan
 	getnetlocalgroupmember - Returns a list of all users in a local group on a remote system
 	getdomaingroupmember - Returns a list of all users in a domain group
 	getdomainuser - Retrieves info about specific user (name, description, SID, Domain Groups)
-	getdomaindescription - returns domain objects with non-standard account descriptions
+	getdomaindescriptions - returns domain objects with non-standard account descriptions
 	getnetsession - Returns a list of accounts with sessions on the targeted system
 	getnetloggedon - Returns a list of accounts logged into the targeted system
 	getuserswithspns - Returns a list of all domain accounts that have a SPN associated with them
