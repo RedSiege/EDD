@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetUsersWithSpns";
 
+        public override string FunctionDesc => "Returns a list of all domain accounts that have a SPN associated with them";
+
+        public override string FunctionUsage => "EDD.exe -f GetUsersWithSpns ";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

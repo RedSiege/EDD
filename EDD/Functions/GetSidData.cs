@@ -7,6 +7,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetSidData";
 
+        public override string FunctionDesc => "Return username from SID";
+
+        public override string FunctionUsage => "EDD.exe -f GetSidData";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

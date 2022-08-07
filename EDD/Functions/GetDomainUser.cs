@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetDomainUser";
 
+        public override string FunctionDesc => "Retrieves info about specific user (name, description, SID, Domain Groups)";
+
+        public override string FunctionUsage => "EDD.exe -f GetDomainUser -d [domain name] -u [username]";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

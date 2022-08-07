@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetDomainGroupMember";
 
+        public override string FunctionDesc => "Returns a list of all users in a domain group";
+
+        public override string FunctionUsage => "EDD.exe -f GetDomainGroupMember -g <group name>";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

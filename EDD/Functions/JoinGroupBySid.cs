@@ -8,16 +8,20 @@ namespace EDD.Functions
     {
         public override string FunctionName => "JoinGroupBySid";
 
+        public override string FunctionDesc => "Join an account to a group via the group's sid";
+
+        public override string FunctionUsage => "EDD.exe -f JoinGroupBySid -g [group sid] -u [username]";
+
         public override string[] Execute(ParsedArgs args)
         {
             if (args.GroupName == null)
             {
-                return new string[] {"You need to provide a SID in the GroupName parameter"};
+                return new string[] { "You need to provide a SID in the GroupName parameter" };
             }
 
             if (args.UserName == null)
             {
-                return new string[] {"You need to provide a username to join the targeted group"};
+                return new string[] { "You need to provide a username to join the targeted group" };
             }
 
             try
@@ -29,7 +33,7 @@ namespace EDD.Functions
                     group.Save();
                 }
 
-                return new string[] {"Joined account to group"};
+                return new string[] { "Joined account to group" };
             }
             catch (Exception e)
             {

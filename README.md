@@ -22,10 +22,12 @@ Arguments:
 	-a, --adright=VALUE        Active Directory Rights to return, separated by
 	                           commas
 	-s, --search=VALUE         the search term(s) for
-	                           FindInterestingDomainShareFile separated by a
-	                           comma (,), accepts wildcards
-	  --sharepath=VALUE      the specific share to search for interesting files
-	-l, --listfunctions        list EDD functions available
+	                             FindInterestingDomainShareFile separated by a
+	                             comma (,), accepts wildcards
+	--sharepath=VALUE      the specific share to search for interesting files
+	-i, --info                 returns information on a specifed function
+	-l, --listfunction         returns all available functions
+
 	-h, --help                 show this message and exit
 
 
@@ -57,6 +59,9 @@ The following functions can be used with the -f flag to specify the data you wan
 	getnetsession - Returns a list of accounts with sessions on the targeted system
 	getnetloggedon - Returns a list of accounts logged into the targeted system
 	getuserswithspns - Returns a list of all domain accounts that have a SPN associated with them
+	getdomaingroupsid - Fetch the SID of a group
+	getdomainsid - Fetch SID of domain
+	getsiddata - Return username from SID
 	joingroupbysid - Join an account to a group via the group's sid
 	joingroupbyname - Join an account to a group via the group's name
 

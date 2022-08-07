@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetNetLoggedOn";
 
+        public override string FunctionDesc => "Returns a list of accounts logged into the targeted system";
+
+        public override string FunctionUsage => "EDD.exe -f GetNetLoggedOn -c [computer name]";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

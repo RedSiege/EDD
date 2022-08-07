@@ -10,6 +10,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetReadableDomainShares";
 
+        public override string FunctionDesc => "Get a list of all readable domain shares";
+
+        public override string FunctionUsage => "EDD.exe -f GetReadableDomainShares -t <threads>";
+
         public override string[] Execute(ParsedArgs args)
         {
             List<string> readableShares = new List<string>();
@@ -35,7 +39,7 @@ namespace EDD.Functions
                     {
                         // do nothing either
                     }
-                    
+
                 }
 
                 return readableShares.ToArray();

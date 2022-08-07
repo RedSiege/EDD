@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetNetLocalGroupMember";
 
+        public override string FunctionDesc => "Returns a list of all users in a local group on a remote system";
+
+        public override string FunctionUsage => "EDD.exe -f GetNetLocalGroupMember -c [computer name] -g [group name]";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

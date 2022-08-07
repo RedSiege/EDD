@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetDomainControllers";
 
+        public override string FunctionDesc => "Get a list of all computers in the domain";
+
+        public override string FunctionUsage => "EDD.exe -f GetDomainControllers";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

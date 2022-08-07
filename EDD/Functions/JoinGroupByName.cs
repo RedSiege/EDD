@@ -8,6 +8,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "JoinGroupByName";
 
+        public override string FunctionDesc => "Join an account to a group via the group's name";
+
+        public override string FunctionUsage => "EDD.exe -f JoinGroupByName -g [group name] -u [username]";
+
         public override string[] Execute(ParsedArgs args)
         {
             if (args.GroupName == null)

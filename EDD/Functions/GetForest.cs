@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetForest";
 
+        public override string FunctionDesc => "Returns the name of the current forest";
+
+        public override string FunctionUsage => "EDD.exe -f GetForest";
+
         public override string[] Execute(ParsedArgs args)
         {
             try
@@ -21,7 +25,7 @@ namespace EDD.Functions
             {
                 return new string[] { "[X] Failure to enumerate info - " + e };
             }
-            
+
         }
     }
 }

@@ -9,7 +9,11 @@ namespace EDD.Functions
 {
     public class FindAdminWMI : EDDFunction
     {
-        public override string FunctionName =>"FindAdminWMI";
+        public override string FunctionName => "FindAdminWMI";
+
+        public override string FunctionDesc => "Uses WMI to search for admin rights within a domain";
+
+        public override string FunctionUsage => "EDD.exe -f FindAdminWMI";
 
         public override string[] Execute(ParsedArgs args)
         {

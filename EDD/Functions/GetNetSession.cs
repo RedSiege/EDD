@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetNetSession";
 
+        public override string FunctionDesc => "Returns a list of accounts with sessions on the targeted system";
+
+        public override string FunctionUsage => "EDD.exe -f GetNetSession -c [computer name]";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

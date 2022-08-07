@@ -21,6 +21,7 @@ namespace EDD
                 string fileSavePath = null;
                 bool show_help = false;
                 bool list_functions = false;
+                bool functionInfo = false;
 
                 var p = new OptionSet()
                 {
@@ -39,8 +40,9 @@ namespace EDD
                     {"s|search=", "the search term(s) for FindInterestingDomainShareFile separated by a comma (,), accepts wildcards",
                         (string s) => parsedArgs.SearchTerms = s?.Split(',')},
                     {"sharepath=", "the specific share to search for interesting files", (v) => parsedArgs.SharePath = v},
-                    {"l|listfunctions", "list EDD functions available", v => list_functions = v != null},
-                    {"h|help", "show this message and exit", v => show_help = v != null}
+                    {"i|info", "Returns information on specified function", (v) => functionInfo =v != null},
+                    {"l|listfunctions", "list EDD functions available", (v) => list_functions = v != null},
+                    {"h|help", "show this message and exit", (v) => show_help = v != null}
                 };
 
 
@@ -54,8 +56,12 @@ namespace EDD
 
                 InitFunctions();
 
+                if (list_functions) { FunctionReturn(); return; }
+
                 EDDFunction function = _functions.FirstOrDefault(f =>
                     f.FunctionName.Equals(functionName, StringComparison.InvariantCultureIgnoreCase));
+
+                if (functionInfo) { functionDetails(function); return; }
 
                 if (function is null)
                 {
@@ -118,12 +124,17 @@ namespace EDD
         static void FunctionReturn()
         {
             Console.WriteLine("EDD functions:");
-            foreach (EDDFunction function in _functions)
-            {
-                Console.WriteLine($"{function.FunctionName}");
-            }
+            foreach (EDDFunction function in _functions) { Console.WriteLine($"{function.FunctionName}"); }
         }
 
+        static void functionDetails(EDDFunction function)
+        {
+            Console.WriteLine(
+                $"Name:  {function.FunctionName}\n" +
+                $"Desc:  {function.FunctionDesc}\n" +
+                $"Usage: {function.FunctionUsage}"
+                );
+        }
 
         static void InitFunctions()
         {

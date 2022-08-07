@@ -7,6 +7,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetDomainSid";
 
+        public override string FunctionDesc => "Fetch SID of domain";
+
+        public override string FunctionUsage => "EDD.exe -f GetDomainSid -d [domain name]";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

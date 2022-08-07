@@ -9,6 +9,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetCurrentDomain";
 
+        public override string FunctionDesc => "Retrieves the curernt domain";
+
+        public override string FunctionUsage => "EDD.exe -f GetCurrentDomain";
+
         public override string[] Execute(ParsedArgs args)
         {
             try

@@ -10,6 +10,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "FindWritableShares";
 
+        public override string FunctionDesc => "Enumerates all shares in the domain and then checks to see if the current account can create a text file in the root level share, and one level deep.";
+
+        public override string FunctionUsage => "EDD.exe -f FindWritableShares -t <threads>";
+
         public override string[] Execute(ParsedArgs args)
         {
             List<string> successfulShareWrites = new List<string>();
@@ -101,7 +105,7 @@ namespace EDD.Functions
                 }
 
                 Console.WriteLine("[X] ERROR State Occurred - Paths above are current status prior to error!");
-                return new string[] {"[X] Failure to enumerate info - " + e};
+                return new string[] { "[X] Failure to enumerate info - " + e };
             }
         }
     }

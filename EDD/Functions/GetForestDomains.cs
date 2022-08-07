@@ -10,6 +10,10 @@ namespace EDD.Functions
     {
         public override string FunctionName => "GetForestDomains";
 
+        public override string FunctionDesc => "Returns the name of all domains in the current forest";
+
+        public override string FunctionUsage => "EDD.exe -f GetForestDomains";
+
         public override string[] Execute(ParsedArgs args)
         {
             try
