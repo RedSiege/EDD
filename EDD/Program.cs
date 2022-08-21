@@ -8,10 +8,10 @@ using System.Reflection;
 
 namespace EDD
 {
-    class Program
+    public static class EDDRuntime
     {
         private static readonly List<EDDFunction> _functions = new List<EDDFunction>();
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             try
             {
