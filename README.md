@@ -1,7 +1,7 @@
 # WPF Frontend
 
 <p align="center">
-	<img align="center" src="https://raw.githubusercontent.com/whiterabb17/sifter/master/docs/sifter.png">
+	<img align="center" src="https://raw.githubusercontent.com/whiterabb17/EDD/master/Screenshot.png">
 </p>
 
 # EDD
