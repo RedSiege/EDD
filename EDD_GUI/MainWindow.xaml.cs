@@ -84,7 +84,7 @@ namespace EDD_GUI
         {
             List<string> argList = new List<string>();
             if (TargetDomainName.Text != "")
-                argList.Add($"{TargetDomainName}{TargetDomainName.Text}");
+                argList.Add($"{targetDomain}{TargetDomainName.Text}");
             if (TargetCompName.Text != "")
                 argList.Add($"{targetComputer}{TargetCompName.Text}");
             if (TargetConicalName.Text != "")
