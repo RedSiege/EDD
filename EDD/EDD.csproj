@@ -5,7 +5,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{861E4241-3D37-4534-AC27-8DFECC65C508}</ProjectGuid>
+    <ProjectGuid>{B3892570-87EC-4F37-BBB0-66F6ECCD249A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>EDD</RootNamespace>
     <AssemblyName>EDD</AssemblyName>

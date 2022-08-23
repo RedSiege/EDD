@@ -97,7 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EDD\EDD.csproj">
-      <Project>{861e4241-3d37-4534-ac27-8dfecc65c508}</Project>
+      <Project>{b3892570-87ec-4f37-bbb0-66f6eccd249a}</Project>
       <Name>EDD</Name>
     </ProjectReference>
   </ItemGroup>
