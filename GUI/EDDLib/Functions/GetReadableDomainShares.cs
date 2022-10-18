@@ -1,0 +1,59 @@
+﻿using System;
+using EDDLib.Models;
+
+using System.Collections.Generic;
+using System.IO;
+
+namespace EDDLib.Functions
+{
+    public class GetReadableDomainShares : EDDFunction
+    {
+        public override string FunctionName => "GetReadableDomainShares";
+
+        public override string FunctionDesc => "Get a list of all readable domain shares";
+
+        public override string FunctionUsage => "EDD.exe -f GetReadableDomainShares -t <threads>";
+
+        public override string[] Execute(ParsedArgs args)
+        {
+            List<string> readableShares = new List<string>();
+            try
+            {
+                LDAP computerQuery = new LDAP();
+                List<string> domainSystems = computerQuery.CaptureComputers();
+                Amass shareMe = new Amass();
+                string[] allShares = shareMe.GetShares(domainSystems, args.Threads);
+
+                foreach (string shareDir in allShares)
+                {
+                    try
+                    {
+                        string[] subdirectoryEntries = Directory.GetDirectories(shareDir);
+                        readableShares.Add(shareDir);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        // do nothing
+                    }
+                    catch (IOException)
+                    {
+                        // do nothing either
+                    }
+
+                }
+
+                return readableShares.ToArray();
+            }
+            catch (Exception e)
+            {
+                foreach (string path in readableShares)
+                {
+                    Console.WriteLine(path);
+                }
+
+                Console.WriteLine("[X] ERROR State Occurred - Paths above are current status prior to error!");
+                return new string[] { "[X] Failure to enumerate info - " + e };
+            }
+        }
+    }
+}
