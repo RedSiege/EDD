@@ -9,17 +9,18 @@ namespace EDD.Functions
 
         public override string FunctionDesc => "Fetch the SID of a group";
 
-        public override string FunctionUsage => "EDD.exe -f GetDomainGroupSid -d [group name]";
+        public override string FunctionUsage => "EDD.exe -f GetDomainGroupSid -g [group name]";
 
         public override string[] Execute(ParsedArgs args)
         {
             try
             {
                 if (string.IsNullOrEmpty(args.GroupName))
-                    throw new EDDException("DomainName cannot be empty");
+
+                    throw new EDDException("GroupName cannot be empty");
 
                 Amass domainGroupSid = new Amass();
-                string incomingSid = domainGroupSid.GetDomainGroupSID(args.DomainName);
+                string incomingSid = domainGroupSid.GetDomainGroupSID(args.GroupName);
 
                 return new string[] { incomingSid };
             }
