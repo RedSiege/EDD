@@ -32,7 +32,6 @@ namespace EDD.Functions
                     ConnectionOptions options = new ConnectionOptions();
                     options.Impersonation = ImpersonationLevel.Impersonate;
                     ManagementScope scope = new ManagementScope("\\\\" + domainComputer + "\\root\\cimv2", options);
-                    bool isSystemEmpty = false;
 
                     try
                     {
