@@ -1,0 +1,38 @@
+﻿using System;
+using EDDLib.Models;
+
+using System.Collections.Generic;
+using System.DirectoryServices.ActiveDirectory;
+
+namespace EDDLib.Functions
+{
+    class GetForestDomains : EDDFunction
+    {
+        public override string FunctionName => "GetForestDomains";
+
+        public override string FunctionDesc => "Returns the name of all domains in the current forest";
+
+        public override string FunctionUsage => "EDD.exe -f GetForestDomains";
+
+        public override string[] Execute(ParsedArgs args)
+        {
+            try
+            {
+                Amass forestDomains = new Amass();
+                Forest theCurrentForest = forestDomains.GetForestObject();
+                DomainCollection forestDomainList = theCurrentForest.Domains;
+
+                List<string> result = new List<string>();
+
+                foreach (Domain internalDomain in forestDomainList)
+                    result.Add(internalDomain.Name);
+
+                return result.ToArray();
+            }
+            catch (Exception e)
+            {
+                return new string[] { "[X] Failure to enumerate info - " + e };
+            }
+        }
+    }
+}

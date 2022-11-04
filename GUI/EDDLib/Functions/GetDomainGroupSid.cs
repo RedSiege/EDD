@@ -1,7 +1,7 @@
 ﻿using System;
-using EDD.Models;
+using EDDLib.Models;
 
-namespace EDD.Functions
+namespace EDDLib.Functions
 {
     public class GetDomainGroupSid : EDDFunction
     {
@@ -16,7 +16,6 @@ namespace EDD.Functions
             try
             {
                 if (string.IsNullOrEmpty(args.GroupName))
-
                     throw new EDDException("GroupName cannot be empty");
 
                 Amass domainGroupSid = new Amass();

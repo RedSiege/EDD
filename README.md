@@ -1,5 +1,13 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/whiterabb17/edd/badge/master)](https://www.codefactor.io/repository/github/whiterabb17/edd/overview/master)
+
 # EDD
 Enumerate Domain Data is designed to be similar to PowerView but in .NET. PowerView is essentially the ultimate domain enumeration tool, and we wanted a .NET implementation that we worked on ourselves. This tool was largely put together by viewing implementations of different functionality across a wide range of existing projects and combining them into EDD. 
+
+# WPF Frontend
+
+<p align="center">
+	<img align="center" src="https://raw.githubusercontent.com/whiterabb17/EDD/master/Screenshot.png">
+</p>
 
 ## Usage
 
