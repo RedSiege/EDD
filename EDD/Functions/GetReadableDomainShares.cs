@@ -17,10 +17,28 @@ namespace EDD.Functions
         public override string[] Execute(ParsedArgs args)
         {
             List<string> readableShares = new List<string>();
+            List<string> domainSystems = new List<string>();
             try
             {
-                LDAP computerQuery = new LDAP();
-                List<string> domainSystems = computerQuery.CaptureComputers();
+                if (string.IsNullOrEmpty(args.FileData))
+                {
+                    LDAP computerQuery = new LDAP();
+                    domainSystems = computerQuery.CaptureComputers();
+                }
+                else
+                {
+                    if (File.Exists(args.FileData))
+                    {
+                        foreach (string line in File.ReadLines(args.FileData))
+                        {
+                            domainSystems.Add(line);
+                        }
+                    }
+                    else
+                    {
+                        return new string[] { "[X] You did not provide a valid file path containing the computers to target!" };
+                    }
+                }
                 Amass shareMe = new Amass();
                 string[] allShares = shareMe.GetShares(domainSystems, args.Threads);
 
