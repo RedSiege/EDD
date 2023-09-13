@@ -22,6 +22,7 @@ Arguments:
 	-d, --domainname=VALUE     the computer you are targeting
 	-g, --groupname=VALUE      the domain group you are targeting
 	-p, --processname=VALUE    the process you are targeting
+	-fd, --filedata=PATH       the path to a file containing data related to the function you are invoking
 	-w, --password=VALUE       the password to authenticate with or what you are
 	                           setting it to
 	-u, --username=VALUE       the domain account you are targeting
