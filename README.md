@@ -48,7 +48,6 @@ The following functions can be used with the -f flag to specify the data you wan
 	getdomainsid - Returns the domain sid (by default current domain if no domain is provided)
 	getforest - returns the name of the current forest
 	getforestdomains - returns the name of all domains in the current forest
-	getsiddata - Converts a SID to the corresponding group or domain name (use the -u option for providing the SID value)
 	getadcsservers - Get a list of servers running AD CS within the current domain
 
 ### Computer Information
